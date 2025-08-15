@@ -1,7 +1,7 @@
 WEIGHTS_DIR = "./model"
 MODEL_NAME = "guard.pt"
 
-CONF_THRESH = 0.5
+MODEL_CONF = 0.7
 CONTAINMENT_RATIO = 0.5
 PERSON_PAD_PX = 10
 
@@ -9,7 +9,9 @@ PERSON_ALIASES = {"Normal"}
 ALERT_CLASSES = {"Phone"}
 
 VIDEO_PATH = "./video/"
-VIDEO_NAME = "20250815_131944.mp4"
+VIDEO_NAME = "20250815_131431.mp4"
 
 SNAPSHOT_DIR = "./snapshots"  
-PHONE_HOLD_SECONDS = 4         
+PHONE_HOLD_SECONDS = 4
+
+alert_cooldown = 5

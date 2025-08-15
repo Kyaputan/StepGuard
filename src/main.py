@@ -5,11 +5,7 @@ import os
 from detection import load_model, infer , parse_results
 from logic import draw_person_status, PhoneHoldTracker
 from camera import VideoSource, should_infer
-from drawing import draw_alerts
 from config import SNAPSHOT_DIR , VIDEO_PATH , VIDEO_NAME
-
-# --- ถ้ายังไม่มี parse_results ให้ใช้ฟังก์ชันนี้ ---
-
 
 def main():
     model = load_model()
@@ -18,10 +14,10 @@ def main():
     os.makedirs(SNAPSHOT_DIR, exist_ok=True)
     tracker = PhoneHoldTracker()  
 
-    infer_every_n = 5
+    infer_every_n = 10
     frame_idx = 0
     last_results = []
-
+    
     try:
         while True:
             ok, frame = cam.read()
@@ -36,12 +32,11 @@ def main():
             else:
                 person_results = last_results
 
-            # อัปเดต tracker เพื่อตรวจจับถือโทรศัพท์เกิน 5 วิแล้วครอป
             tracker.update(person_results, frame, time.time())
-
-            # วาด overlay
-            draw_person_status(frame, person_results)
-
+            has_phone = draw_person_status(frame, person_results)
+            if has_phone and time.time() - tracker.last_alert_time > tracker.alert_cooldown:
+                print("Phone detected")
+                tracker.last_alert_time = time.time()
             cv2.imshow("PPE Detection (Per Person)", frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break

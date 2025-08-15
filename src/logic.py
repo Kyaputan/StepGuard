@@ -6,21 +6,39 @@ import time
 from typing import List, Dict, Tuple
 from config import ALERT_CLASSES, SNAPSHOT_DIR, PHONE_HOLD_SECONDS
 
+
 def draw_person_status(frame, results):
+    alerts = 0
+    normals = 0
+    has_alert = False
+
+    color_map = {
+        "Normal": (0, 255, 0),
+        "Phone":  (0, 0, 255)
+    }
+
     for i, r in enumerate(results):
         x1, y1, x2, y2 = r["bbox"]
-        
-        color_map = {
-            "Normal": (0, 255, 0),  
-            "Phone": (0, 0, 255)    
-        }
-        color = color_map.get(r["class"], (255, 255, 255))  
+        cls_name = r["class"]
 
+        color = color_map.get(cls_name, (255, 255, 255))
         cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
-        txt = f"Person {i+1}: {r['class']}"
-        cv2.putText(frame, txt, (x1, y1 - 10),cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
-        
+        cv2.putText(frame, f"Person {i+1}: {cls_name}",
+                    (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
 
+        if cls_name.lower() == "phone":
+            alerts += 1
+            has_alert = True
+        else:
+            normals += 1
+
+    # วาดสรุปแค่ครั้งเดียวต่อเฟรม (มุมซ้ายบน)
+    cv2.putText(frame, f"Alert: {alerts}",  (10, 30),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255 if alerts > 0 else 0), 2)
+    cv2.putText(frame, f"Normal: {normals}", (10, 60),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+
+    return has_alert
 
 
 def parse_results(results):
@@ -47,13 +65,15 @@ def _iou(a: Tuple[int,int,int,int], b: Tuple[int,int,int,int]) -> float:
     return inter / union if union > 0 else 0.0
 
 class PhoneHoldTracker:
-
-    def __init__(self, hold_seconds: float = PHONE_HOLD_SECONDS,iou_thresh: float = 0.5, lost_tolerance: float = 1.0):
+    def __init__(self, hold_seconds: float = PHONE_HOLD_SECONDS,iou_thresh: float = 0.5, lost_tolerance: float = 1.0, alert_cooldown: float = 5.0):
         self.hold_seconds = hold_seconds
         self.iou_thresh = iou_thresh
         self.lost_tolerance = lost_tolerance
         self.tracks = [] 
-
+        self.last_alert_time = 0.0
+        self.alert_cooldown = alert_cooldown
+        
+        
         os.makedirs(SNAPSHOT_DIR, exist_ok=True)
         self._alert_set = {c.lower() for c in ALERT_CLASSES}
 
