@@ -66,7 +66,7 @@ python main.py
 ---
 
 ## 🖼️ ตัวอย่างการตรวจจับ
-![Detection Example](image\perview.jpg)
+![Detection Example](image/perview.jpg)
 
 ---
 
