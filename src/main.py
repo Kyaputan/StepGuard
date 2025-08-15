@@ -36,7 +36,7 @@ def main():
             if has_phone and time.time() - tracker.last_alert_time > tracker.alert_cooldown:
                 print("Phone detected")
                 tracker.last_alert_time = time.time()
-            cv2.imshow("PPE Detection (Per Person)", frame)
+            cv2.imshow("Detection", frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 

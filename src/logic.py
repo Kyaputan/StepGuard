@@ -1,11 +1,9 @@
 import cv2
-from config import PERSON_ALIASES, ALERT_CLASSES
-import cv2
+from config import ALERT_CLASSES ,SNAPSHOT_DIR ,ALERT_CLASSES, SNAPSHOT_DIR, PHONE_HOLD_SECONDS
 import os
 import time
 from typing import List, Dict, Tuple
-from config import ALERT_CLASSES, SNAPSHOT_DIR, PHONE_HOLD_SECONDS
-
+from router import notify_violation
 
 def draw_person_status(frame, results):
     alerts = 0
@@ -108,6 +106,7 @@ class PhoneHoldTracker:
         for t in self.tracks:
             if not t["triggered"] and (now - t["start"]) >= self.hold_seconds:
                 x1, y1, x2, y2 = t["bbox"]
+                
                 margin_x = int((x2 - x1) * 0.2) 
                 margin_y = int((y2 - y1) * 0.2) 
                 x1 -= margin_x
@@ -121,10 +120,17 @@ class PhoneHoldTracker:
                 y2 = max(0, min(y2, h-1))
 
                 if x2 > x1 and y2 > y1:
+                    x1, y1, x2, y2 = map(int, (x1, y1, x2, y2))
                     crop = frame[y1:y2, x1:x2]
                     ts = time.strftime("%Y%m%d-%H%M%S")
-                    filename = f"{ts}_{x1}-{y1}-{x2}-{y2}.jpg"
-                    cv2.imwrite(os.path.join(SNAPSHOT_DIR, filename), crop)
+                    filename = f"{ts}.jpg"
+                    path = os.path.join(SNAPSHOT_DIR, filename)
+                    ok = cv2.imwrite(path, crop)
+                    if not ok:
+                        print(f"[Tracker] บันทึกรูปไม่สำเร็จ: {path}")
+                    else:
+                        caption = f"ตรวจจับการใช้มือถือบนทางบันได 🚫📱\nไฟล์: {filename}"
+                        notify_violation(image_path=path, caption=caption)
                     t["triggered"] = True
 
         self.tracks = [
