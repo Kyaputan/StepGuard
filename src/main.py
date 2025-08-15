@@ -4,20 +4,19 @@ import os
 
 from detection import load_model, infer , parse_results
 from logic import draw_person_status, PhoneHoldTracker
-from camera import VideoSource, should_infer
-from config import SNAPSHOT_DIR , VIDEO_PATH , VIDEO_NAME
+from camera import VideoSource
+from config import SNAPSHOT_DIR , VIDEO_PATH , VIDEO_NAME , INFER
 
 def main():
     model = load_model()
-    cam = VideoSource(VIDEO_PATH + VIDEO_NAME)
-
+    os.makedirs(VIDEO_PATH, exist_ok=True)
     os.makedirs(SNAPSHOT_DIR, exist_ok=True)
+    cam = VideoSource(VIDEO_PATH + VIDEO_NAME , every_n=INFER)
+
     tracker = PhoneHoldTracker()  
 
-    infer_every_n = 10
-    frame_idx = 0
     last_results = []
-    
+
     try:
         while True:
             ok, frame = cam.read()
@@ -25,7 +24,7 @@ def main():
                 print("Camera read failed")
                 break
             frame = cv2.resize(frame, (640, 640))
-            if should_infer(frame_idx, infer_every_n):
+            if cam.should_infer():
                 yolo_results = infer(model, frame)
                 person_results = parse_results(yolo_results)
                 last_results = person_results
@@ -41,7 +40,7 @@ def main():
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
-            frame_idx += 1
+            cam.frame_idx += 1
 
     finally:
         cam.release()

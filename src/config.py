@@ -8,10 +8,12 @@ PERSON_PAD_PX = 10
 PERSON_ALIASES = {"Normal"}
 ALERT_CLASSES = {"Phone"}
 
-VIDEO_PATH = "./video/"
-VIDEO_NAME = "20250815_131431.mp4"
+VIDEO_PATH = "./video"
+VIDEO_NAME = "/20250815_131431.mp4"
 
 SNAPSHOT_DIR = "./snapshots"  
 PHONE_HOLD_SECONDS = 4
 
 alert_cooldown = 5
+
+INFER = 10
