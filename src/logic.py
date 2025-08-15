@@ -107,7 +107,7 @@ class PhoneHoldTracker:
             if not t["triggered"] and (now - t["start"]) >= self.hold_seconds:
                 x1, y1, x2, y2 = t["bbox"]
                 
-                margin_x = int((x2 - x1) * 0.2) 
+                margin_x = int((x2 - x1) * 0.4) 
                 margin_y = int((y2 - y1) * 0.2) 
                 x1 -= margin_x
                 y1 -= margin_y
@@ -133,7 +133,4 @@ class PhoneHoldTracker:
                         notify_violation(image_path=path, caption=caption)
                     t["triggered"] = True
 
-        self.tracks = [
-            t for t in self.tracks 
-            if (now - t["last"]) <= self.lost_tolerance
-        ]
+        self.tracks = [t for t in self.tracks if (now - t["last"]) <= self.lost_tolerance]

@@ -4,7 +4,7 @@ from config import WEIGHTS_DIR, MODEL_NAME, MODEL_CONF
 
 def load_model():
     model_path = os.path.join(WEIGHTS_DIR, MODEL_NAME)
-    model = YOLO(model_path)
+    model = YOLO(model_path , task="detect")
     return model
 
 def infer(model, frame):

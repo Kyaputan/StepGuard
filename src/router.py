@@ -35,7 +35,7 @@ def send_photo_now(image_path: str, caption: str = "ภาพที่บัน�
     except Exception as e:
         logging.exception("[Notifier] exception ขณะส่งรูป: %s", e)
 
-def notify_violation(image_path: str, caption: str = "🔥 ตรวจจับใช้มือถือบนบันได 🚫📱"):
+def notify_violation(image_path: str, caption: str = "🔥 ตรวจจับคนแอบเล่นมือถือบนบันไดค่ะ! 🚫📱 "):
     global last_sent
     now = time.time()
     if now - last_sent < COOLDOWN_SEC:
