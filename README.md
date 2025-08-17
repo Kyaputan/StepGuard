@@ -65,8 +65,10 @@ python main.py
 
 ---
 
-## 🖼️ ตัวอย่างการตรวจจับ
-![Detection Example](image/perview.jpg)
+## 🖼️ Detection Example
+<p align="center">
+  <img src="image/perview.jpg" alt="Detection Example" style="max-width:50%; height:auto;"/>
+</p>
 
 ---
 
