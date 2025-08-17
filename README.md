@@ -67,7 +67,7 @@ python main.py
 
 ## 🖼️ Detection Example
 <p align="center">
-  <img src="image/perview.jpg" alt="Detection Example" style="max-width:50%; height:auto;"/>
+  <img src="image/perview.jpg" alt="Detection Example" style="max-width:30%; height:auto;"/>
 </p>
 
 ---
