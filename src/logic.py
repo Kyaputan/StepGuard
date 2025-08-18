@@ -1,5 +1,5 @@
 import cv2
-from config import ALERT_CLASSES ,SNAPSHOT_DIR ,ALERT_CLASSES, SNAPSHOT_DIR, PHONE_HOLD_SECONDS
+from config import  ALERT_CLASSES, SNAPSHOT_DIR, PHONE_HOLD_SECONDS , CROP_FRAME
 import os
 import time
 from typing import List, Dict, Tuple
@@ -12,8 +12,7 @@ def draw_person_status(frame, results):
 
     color_map = {
         "Normal": (0, 255, 0),
-        "Phone":  (0, 0, 255)
-    }
+        "Phone":  (0, 0, 255)}
 
     for i, r in enumerate(results):
         x1, y1, x2, y2 = r["bbox"]
@@ -30,24 +29,9 @@ def draw_person_status(frame, results):
         else:
             normals += 1
 
-    # วาดสรุปแค่ครั้งเดียวต่อเฟรม (มุมซ้ายบน)
-    cv2.putText(frame, f"Alert: {alerts}",  (10, 30),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255 if alerts > 0 else 0), 2)
-    cv2.putText(frame, f"Normal: {normals}", (10, 60),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-
+    cv2.putText(frame, f"Alert: {alerts}",  (10, 30),cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255 if alerts > 0 else 0), 2)
+    cv2.putText(frame, f"Normal: {normals}", (10, 60),cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
     return has_alert
-
-
-def parse_results(results):
-    parsed = []
-    names = results.names  # class index -> name
-    for box in results.boxes:
-        x1, y1, x2, y2 = map(int, box.xyxy[0])
-        cls_id = int(box.cls[0])
-        cls_name = names[cls_id]
-        parsed.append({"bbox": (x1, y1, x2, y2), "class": cls_name})
-    return parsed
 
 def _iou(a: Tuple[int,int,int,int], b: Tuple[int,int,int,int]) -> float:
     ax1, ay1, ax2, ay2 = a
@@ -70,10 +54,8 @@ class PhoneHoldTracker:
         self.tracks = [] 
         self.last_alert_time = 0.0
         self.alert_cooldown = alert_cooldown
-        
-        
-        os.makedirs(SNAPSHOT_DIR, exist_ok=True)
         self._alert_set = {c.lower() for c in ALERT_CLASSES}
+        os.makedirs(SNAPSHOT_DIR, exist_ok=True)
 
     def update(self, detections: List[Dict], frame, now: float):
         phone_dets = [d for d in detections if d["class"].lower() in self._alert_set]
@@ -107,8 +89,8 @@ class PhoneHoldTracker:
             if not t["triggered"] and (now - t["start"]) >= self.hold_seconds:
                 x1, y1, x2, y2 = t["bbox"]
                 
-                margin_x = int((x2 - x1) * 0.4) 
-                margin_y = int((y2 - y1) * 0.2) 
+                margin_x = int((x2 - x1) * CROP_FRAME[0]) 
+                margin_y = int((y2 - y1) * CROP_FRAME[1]) 
                 x1 -= margin_x
                 y1 -= margin_y
                 x2 += margin_x

@@ -4,34 +4,37 @@ import os
 from detection import load_model, infer , parse_results
 from logic import draw_person_status, PhoneHoldTracker
 from camera import VideoSource
-from config import SNAPSHOT_DIR , VIDEO_PATH , VIDEO_NAME , INFER , TZ
-from util import is_active_hour , delete_all_snapshots , next_midnight_bkk
+from config import SNAPSHOT_DIR , VIDEO_PATH , VIDEO_NAME , INFER , TZ , MARGIN
+from util import is_active_hour , start_scheduler , next_midnight_bkk
 from datetime import datetime
 
 def main():
-    model = load_model()
-    os.makedirs(VIDEO_PATH, exist_ok=True)
-    os.makedirs(SNAPSHOT_DIR, exist_ok=True)
-    cam = VideoSource(0 , every_n=INFER)
-
-    tracker = PhoneHoldTracker()  
-    next_clear = next_midnight_bkk()
-    last_results = []
-    prev_active = None
+    try:
+        start_scheduler(test_once=True)
+        model = load_model()
+        os.makedirs(VIDEO_PATH, exist_ok=True)
+        os.makedirs(SNAPSHOT_DIR, exist_ok=True)
+        # cam = VideoSource(0, every_n=INFER)
+        cam = VideoSource(VIDEO_PATH + VIDEO_NAME, every_n=INFER)
+        tracker = PhoneHoldTracker()  
+        next_clear = next_midnight_bkk()
+        last_results = []
+        prev_active = None
+    except Exception as e:
+        print(f"[ERROR] {e}")
+        return
     
     try:
         while True:
             now = datetime.now(TZ)
-
             if now >= next_clear:
-                delete_all_snapshots()
                 next_clear = next_midnight_bkk(now)
 
             ok, frame = cam.read()
             if not ok:
                 print("Camera read failed")
                 break
-            frame = cv2.resize(frame, (720, 720))
+            frame = cv2.resize(frame, (640, 640))
             active = is_active_hour(now)
             
             if not active:
@@ -50,7 +53,7 @@ def main():
                 print(f"[INFO {now.time()}] ON-HOURS: resume YOLO")
             if cam.should_infer():
                 yolo_results = infer(model, frame)
-                person_results = parse_results(yolo_results)
+                person_results = parse_results(yolo_results , margin=MARGIN)
                 last_results = person_results
             else:
                 person_results = last_results if last_results else []

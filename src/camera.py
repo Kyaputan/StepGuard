@@ -16,3 +16,16 @@ class VideoSource:
 
     def should_infer(self):
         return self.frame_idx % self.every_n == 0
+    
+if __name__ == "__main__":
+    print("[INFO] VideoSource")
+    cam = VideoSource(0, every_n=1)
+    while True:
+        ok, frame = cam.read()
+        if not ok:
+            print("Camera read failed")
+            break
+        cv2.imshow("Detection", frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+        cam.frame_idx += 1

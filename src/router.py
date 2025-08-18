@@ -6,7 +6,7 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
 
 COOLDOWN_SEC = float(os.getenv("COOLDOWN_SEC", "30"))
-last_sent = 0.0  # เก็บสถานะไว้ในโมดูลนี้เท่านั้น
+last_sent = 0.0  
 
 def _get_env():
     token = os.getenv("TELEGRAM_TOKEN") or os.getenv("TOKEN")
@@ -46,4 +46,5 @@ def notify_violation(image_path: str, caption: str = "🔥 ตรวจจับ
 
 
 if __name__ == "__main__":
+    print("[INFO] Router")
     send_photo_now("./snapshots/20250815-161400.jpg", "test")
