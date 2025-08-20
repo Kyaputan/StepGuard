@@ -1,85 +1,63 @@
 # 📱🚫 StepGuard — Stairway Phone Detection System
-
-ระบบตรวจจับการใช้โทรศัพท์บนบันไดแบบเรียลไทม์  
-พัฒนาโดยใช้ **YOLO + OpenCV** พร้อมฟีเจอร์แจ้งเตือนและบันทึกภาพผู้ฝ่าฝืนลงฐานข้อมูล
-
+Real-time phone usage detection system on staircases  
+Developed using **YOLO + OpenCV** with alert notifications and violator image logging to database
 ---
-
-## ✨ ฟีเจอร์
-- ตรวจจับคนที่ใช้มือถือขณะขึ้น-ลงบันไดแบบ Real-Time
-- บันทึกภาพผู้ฝ่าฝืน (Snapshot) พร้อมเวลาลงในฐานข้อมูล
-- รองรับการแจ้งเตือนผ่าน **Telegram Bot** หรือ Email
-- สามารถกำหนดช่วงเวลาทำงาน (Active Hours) ได้
-- Dashboard แสดงสถิติและภาพผู้ฝ่าฝืน
-
+## ✨ Features
+- Real-time detection of people using mobile phones while going up/down stairs
+- Capture snapshots of violators with timestamp logging to database
+- **Telegram Bot** notification support
+- Configurable active hours functionality
 ---
-
-## 📂 โครงสร้างโปรเจกต์
+## 📂 Project Structure
 ```plaintext
 StepGuard/
-│
-├─ main.py               # จุดเริ่มรันระบบ
-├─ config.py             # การตั้งค่า เช่น โมเดล, เวลาทำงาน, การแจ้งเตือน
-├─ detection.py          # โหลดโมเดล YOLO และรัน inference
-├─ tracker.py            # ติดตามการถือโทรศัพท์และนับเวลา
-├─ drawing.py            # วาดกรอบและข้อความลงบนภาพ
-├─ camera.py             # จัดการการอ่านภาพจากกล้อง
-├─ requirements.txt      # รายการ dependencies
-├─ snapshots/            # เก็บภาพผู้ฝ่าฝืน
+├─ src/
+│   ├─ main.py               # System entry point
+│   ├─ config.py             # Configuration settings (model, active hours, notifications)
+│   ├─ detection.py          # YOLO model loading and inference
+│   ├─ Logic.py             # Phone holding tracking and timing logic
+│   ├─ router.py            # Image sending and Telegram notification management
+│   ├─ camera.py            # Camera input handling
+│   └─ util.py              # Utility functions
+├─ requirements.txt         # Dependencies list
+├─ snapshots/              # Violator images storage
 ├─ model/
-│   └─ phone_detect.pt   # โมเดล YOLO ที่เทรนแล้ว
-└─ README.md             # คู่มือโครงการ
+│   └─ phone_detect.pt     # Trained YOLO model
+└─ README.md               # Project documentation
 ```
-
 ---
-
-## ⚙️ การติดตั้ง
-
-### 1️⃣ ติดตั้ง Python และ Git
+## ⚙️ Installation
+### 1️⃣ Install Python and Git
 - Python >= 3.9
-- Git (สำหรับโคลนโค้ด)
-
-### 2️⃣ โคลนโปรเจกต์
+- Git (for cloning the repository)
+### 2️⃣ Clone the Project
 ```bash
 git clone https://github.com/yourname/StepGuard.git
 cd StepGuard
 ```
-
-### 3️⃣ ติดตั้ง Dependencies
+### 3️⃣ Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
-
 ---
-
-## 🚀 การใช้งาน
-
-### 1️⃣ รันระบบตรวจจับ
+## 🚀 Usage
+### 1️⃣ Run Detection System
 ```bash
 python main.py
 ```
-
-### 2️⃣ การแจ้งเตือนผ่าน Telegram
-- สร้าง Bot และรับ Token จาก **BotFather**
-- ใส่ `TELEGRAM_BOT_TOKEN` และ `CHAT_ID` ใน `.env`
-
+### 2️⃣ Telegram Notifications Setup
+- Create a Bot and get Token from **BotFather**
+- Add `TELEGRAM_BOT_TOKEN` and `CHAT_ID` to `.env` file
 ---
-
 ## 🖼️ Detection Example
 <p align="center">
   <img src="image/perview.jpg" alt="Detection Example" width="400"/>
 </p>
-
-
 ---
-
 ## 📜 License
-
 **StepGuard Custom License v1.0**
-
 - Permission is granted to use this source code **for educational and research purposes** only.
 - Commercial use or revenue-generating projects are **strictly prohibited** without prior written consent from the author.
 - Redistribution, modification, or integration into other software for sale is not allowed.
 - Internal use within an organization is permitted, provided that proper credit is retained and the LICENSE file remains intact.
 - The author assumes no liability for any damages arising from the use of this software.
-
