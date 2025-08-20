@@ -25,7 +25,10 @@ def parse_results(results, margin: int = 10):
         parsed.append({"bbox": (x1, y1, x2, y2),"class": cls_name})
     return parsed
 
-if __name__ == "__main__":
+def debug_detection():
     print("[INFO] Detection")
     model = load_model()
     print(model.names)
+
+if __name__ == "__main__":
+    debug_detection()

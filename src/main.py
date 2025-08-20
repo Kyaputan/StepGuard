@@ -1,9 +1,9 @@
 import cv2
 import os, time
-from detection import load_model, infer , parse_results
+from detection import load_model, infer , parse_results , debug_detection
 from logic import draw_person_status, PhoneHoldTracker
 from camera import VideoSource
-from config import SNAPSHOT_DIR , VIDEO_PATH , VIDEO_NAME , INFER , TZ , MARGIN
+from config import SNAPSHOT_DIR , VIDEO_PATH , VIDEO_NAME , INFER , TZ , MARGIN , debug_config
 from util import is_active_hour , start_scheduler , next_midnight_bkk
 from datetime import datetime
 
@@ -68,10 +68,17 @@ def main():
                 break
             prev_active = True
             cam.frame_idx += 1
-
+            
     finally:
         cam.release()
         cv2.destroyAllWindows()
 
 if __name__ == "__main__":
+    os.system('cls' if os.name == 'nt' else 'clear')
+    debug_detection()
+    debug_config()
+    time.sleep(5)
+    print("[INFO] Starting main...")
+    time.sleep(3)
+    os.system('cls' if os.name == 'nt' else 'clear')
     main()

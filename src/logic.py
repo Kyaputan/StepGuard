@@ -46,7 +46,7 @@ def _iou(a: Tuple[int,int,int,int], b: Tuple[int,int,int,int]) -> float:
     return inter / union if union > 0 else 0.0
 
 class PhoneHoldTracker:
-    def __init__(self, hold_seconds: float = PHONE_HOLD_SECONDS,iou_thresh: float = 0.5, lost_tolerance: float = 1.0, alert_cooldown: float = 5.0):
+    def __init__(self, hold_seconds: float = PHONE_HOLD_SECONDS,iou_thresh: float = 0.5, lost_tolerance: float = 1.0, alert_cooldown: float = 10.0):
         self.hold_seconds = hold_seconds
         self.iou_thresh = iou_thresh
         self.lost_tolerance = lost_tolerance
@@ -110,8 +110,7 @@ class PhoneHoldTracker:
                     if not ok:
                         print(f"[Tracker] บันทึกรูปไม่สำเร็จ: {path}")
                     else:
-                        caption = f"ตรวจจับการใช้มือถือบนทางบันได 🚫📱\nไฟล์: {filename}"
-                        notify_violation(image_path=path, caption=caption)
+                        notify_violation(image_path=path)
                     t["triggered"] = True
 
         self.tracks = [t for t in self.tracks if (now - t["last"]) <= self.lost_tolerance]
