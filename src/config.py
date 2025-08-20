@@ -9,7 +9,7 @@ MODEL_CONF = 0.7
 VIDEO_PATH = "./video"
 VIDEO_NAME = "/20250815_131147.mp4"
 INFER = 15
-RTSP = None
+RTSP = 0
 MARGIN = 10
 
 #==== logic.py ==== 
