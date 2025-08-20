@@ -1,7 +1,6 @@
 import cv2
 from config import  ALERT_CLASSES, SNAPSHOT_DIR, PHONE_HOLD_SECONDS , CROP_FRAME
-import os
-import time
+import os, time
 from typing import List, Dict, Tuple
 from router import notify_violation
 

@@ -1,4 +1,3 @@
-# notifier.py
 import os, time, threading, requests, logging
 from dotenv import load_dotenv
 

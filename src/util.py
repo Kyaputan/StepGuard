@@ -1,6 +1,5 @@
 from config import SNAPSHOT_DIR ,TZ , ACTIVE_START_H , ACTIVE_START_M , ACTIVE_END_H , ACTIVE_END_M
 import os , time, shutil, logging, atexit
-from datetime import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime, timedelta    
 

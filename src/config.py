@@ -1,4 +1,3 @@
-from pickle import NONE
 from zoneinfo import ZoneInfo
 
 #==== detection.py ==== 
