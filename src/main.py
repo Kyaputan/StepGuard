@@ -9,7 +9,7 @@ from datetime import datetime
 
 def main():
     try:
-        start_scheduler(test_once=True)
+        start_scheduler(test_once=False)
         model = load_model()
         os.makedirs(VIDEO_PATH, exist_ok=True)
         os.makedirs(SNAPSHOT_DIR, exist_ok=True)
