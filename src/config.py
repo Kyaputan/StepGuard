@@ -30,4 +30,17 @@ TZ = ZoneInfo("Asia/Bangkok")
 
 
 if __name__ == "__main__":
+    print("[INFO] SNAPSHOT_DIR:", SNAPSHOT_DIR)
+    print("[INFO] VIDEO_NAME:",VIDEO_PATH + VIDEO_NAME)
+    print("[INFO] INFER:", INFER)
+    print("[INFO] RTSP:", RTSP)
+    print("[INFO] MARGIN:", MARGIN)
+    print("[INFO] PHONE_HOLD_SECONDS:", PHONE_HOLD_SECONDS)
+    print("[INFO] ALERT_CLASSES:", ALERT_CLASSES)
+    print("[INFO] CROP_FRAME:", CROP_FRAME)
+    print("[INFO] COOLDOWN_SEC:", COOLDOWN_SEC)
+    print("[INFO] ACTIVE_START_H:", ACTIVE_START_H)
+    print("[INFO] ACTIVE_START_M:", ACTIVE_START_M)
+    print("[INFO] ACTIVE_END_H:", ACTIVE_END_H)
+    print("[INFO] ACTIVE_END_M:", ACTIVE_END_M)
     print("[INFO] TZ:", TZ)
