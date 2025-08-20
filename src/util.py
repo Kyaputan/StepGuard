@@ -63,15 +63,12 @@ def is_active_hour(now=None) -> bool:
 if __name__ == "__main__":
     print("[DEBUG] Now:", datetime.now(TZ))
     print("[DEBUG] SNAPSHOT_DIR:", SNAPSHOT_DIR)
-
     os.makedirs(SNAPSHOT_DIR, exist_ok=True)
     for i in range(3):
         with open(os.path.join(SNAPSHOT_DIR, f"tmp{i}.txt"), "w", encoding="utf-8") as f:
             f.write("test")
-
     start_scheduler(test_once=True)
     if SCHED: SCHED.print_jobs()
-
     try:
         time.sleep(20)
     except KeyboardInterrupt:
