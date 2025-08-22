@@ -3,7 +3,7 @@ import os, time
 from detection import load_model, infer , parse_results , debug_detection
 from logic import draw_person_status, PhoneHoldTracker
 from camera import VideoSource
-from config import SNAPSHOT_DIR , VIDEO_PATH , VIDEO_NAME , INFER , TZ , MARGIN , RTSP, debug_config
+from config import SNAPSHOT_DIR , VIDEO_PATH , VIDEO_NAME , INFER , TZ , MARGIN , RTSP , BACKEND, debug_config
 from util import is_active_hour , start_scheduler , next_midnight_bkk
 from datetime import datetime
 
@@ -13,8 +13,8 @@ def main():
         model = load_model()
         os.makedirs(VIDEO_PATH, exist_ok=True)
         os.makedirs(SNAPSHOT_DIR, exist_ok=True)
-        # cam = VideoSource(RTSP, every_n=INFER)
-        cam = VideoSource(VIDEO_PATH + VIDEO_NAME, every_n=INFER)
+        cam = VideoSource(RTSP,BACKEND , every_n=INFER)
+        # cam = VideoSource(VIDEO_PATH + VIDEO_NAME, every_n=INFER)
         tracker = PhoneHoldTracker()  
         next_clear = next_midnight_bkk()
         last_results = []

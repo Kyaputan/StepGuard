@@ -1,4 +1,5 @@
 from zoneinfo import ZoneInfo
+import cv2
 
 #==== detection.py ==== 
 WEIGHTS_DIR = "./model"
@@ -8,8 +9,9 @@ MODEL_CONF = 0.7
 #==== main.py ==== 
 VIDEO_PATH = "./video"
 VIDEO_NAME = "/20250815_131147.mp4"
-INFER = 15
-RTSP = "0"
+INFER = 10
+RTSP = "rtsp://root01:12345678@192.168.1.102:554/stream1"
+BACKEND = cv2.CAP_FFMPEG
 MARGIN = 10
 
 #==== logic.py ==== 

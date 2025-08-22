@@ -1,8 +1,8 @@
 import cv2
 
 class VideoSource:
-    def __init__(self, src=0, width=None, height=None , frame_idx=0 , every_n=1):
-        self.cap = cv2.VideoCapture(src)
+    def __init__(self, src=0, width=None, height=None , frame_idx=0 , every_n=1 , backend=cv2.CAP_ANY):
+        self.cap = cv2.VideoCapture(src , backend)
         self.frame_idx = frame_idx
         self.every_n = every_n
         if width:  self.cap.set(cv2.CAP_PROP_FRAME_WIDTH,  width)
