@@ -43,7 +43,7 @@ pip install -r requirements.txt
 ## 🚀 Usage
 ### 1️⃣ Run Detection System
 ```bash
-python main.py
+python src/main.py
 ```
 ### 2️⃣ Telegram Notifications Setup
 - Create a Bot and get Token from **BotFather**
