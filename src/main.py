@@ -13,8 +13,8 @@ def main():
         model = load_model()
         os.makedirs(VIDEO_PATH, exist_ok=True)
         os.makedirs(SNAPSHOT_DIR, exist_ok=True)
-        cam = VideoSource(RTSP,BACKEND , every_n=INFER)
-        # cam = VideoSource(VIDEO_PATH + VIDEO_NAME, every_n=INFER)
+        # cam = VideoSource(RTSP,BACKEND , every_n=INFER)
+        cam = VideoSource(VIDEO_PATH + VIDEO_NAME, every_n=INFER)
         tracker = PhoneHoldTracker()  
         next_clear = next_midnight_bkk()
         last_results = []
