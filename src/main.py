@@ -6,6 +6,11 @@ from camera import VideoSource
 from config import SNAPSHOT_DIR , VIDEO_PATH , VIDEO_NAME , INFER , TZ , MARGIN , RTSP , BACKEND, debug_config
 from util import is_active_hour , start_scheduler , next_midnight_bkk
 from datetime import datetime
+from router import send_text
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 
 def main():
     try:
@@ -19,8 +24,10 @@ def main():
         next_clear = next_midnight_bkk()
         last_results = []
         prev_active = None
+        total_alerts = 0
+        total_normals = 0
     except Exception as e:
-        print(f"[ERROR] {e}")
+        logger.error(f"[ERROR] {e}")
         return
     
     try:
@@ -28,20 +35,27 @@ def main():
             now = datetime.now(TZ)
             if now >= next_clear:
                 next_clear = next_midnight_bkk(now)
-
             ok, frame = cam.read()
             if not ok:
-                print("Camera read failed")
+                logger.error("Camera read failed")
                 break
+            
             frame = cv2.resize(frame, (640, 640))
             active = is_active_hour(now)
             
             if not active:
                 if prev_active is None or prev_active is True:
-                    print(f"[INFO {now.time()}] OFF-HOURS: pause YOLO now")
+                    logger.info(f"[INFO {now.time()}] OFF-HOURS: pause YOLO now")
+                    send_text(
+                    f"วันนี้ตรวจจับได้ทั้งหมด {total_alerts + total_normals} คน\n"
+                    f"- มีคนใช้โทรศัพท์ {total_alerts} คน ({(total_alerts / (total_alerts + total_normals)) * 100 if (total_alerts + total_normals) > 0 else 0:.1f}%)\n"
+                    f"- มีคนไม่ใช้โทรศัพท์ {total_normals} คน ({(total_normals / (total_alerts + total_normals)) * 100 if (total_alerts + total_normals) > 0 else 0:.1f}%)")
+                    time.sleep(1)
                     last_results = []
+                    total_alerts = 0
+                    total_normals = 0
                 cv2.imshow("Detection", frame)
-                time.sleep(3)
+                time.sleep(2)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
                 prev_active = False
@@ -49,7 +63,7 @@ def main():
                 continue
             
             if prev_active is None or prev_active is False:
-                print(f"[INFO {now.time()}] ON-HOURS: resume YOLO")
+                logger.info(f"[INFO {now.time()}] ON-HOURS: resume YOLO")
             if cam.should_infer():
                 yolo_results = infer(model, frame)
                 person_results = parse_results(yolo_results , margin=MARGIN)
@@ -58,11 +72,17 @@ def main():
                 person_results = last_results if last_results else []
             if person_results:
                 tracker.update(person_results, frame, time.time())
-                has_phone = draw_person_status(frame, person_results)
-                if has_phone and time.time() - tracker.last_alert_time > tracker.alert_cooldown:
-                    print("Phone detected")
-                    tracker.last_alert_time = time.time()
-            
+                status = draw_person_status(frame, person_results)
+                if status["has_alert"] and time.time() - tracker.last_alert_phone_time > tracker.alert_cooldown_phone:
+                    logger.info("Phone detected")
+                    tracker.last_alert_phone_time = time.time()
+                    total_alerts += status["alerts"]
+                if status["has_normal"] and time.time() - tracker.last_alert_normal_time > tracker.alert_cooldown_normal:
+                    logger.info("Normal detected")
+                    tracker.last_alert_normal_time = time.time()
+                    total_normals += status["normals"]
+
+
             cv2.imshow("Detection", frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
@@ -70,6 +90,13 @@ def main():
             cam.frame_idx += 1
             
     finally:
+        logger.info("Releasing camera")
+        logger.info(f"total_normals: {total_normals}")
+        logger.info(f"total_alerts: {total_alerts}")
+        send_text(
+                    f"วันนี้ตรวจจับได้ทั้งหมด {total_alerts + total_normals} คน\n"
+                    f"- มีคนใช้โทรศัพท์ {total_alerts} คน ({(total_alerts / (total_alerts + total_normals)) * 100 if (total_alerts + total_normals) > 0 else 0:.1f}%)\n"
+                    f"- มีคนไม่ใช้โทรศัพท์ {total_normals} คน ({(total_normals / (total_alerts + total_normals)) * 100 if (total_alerts + total_normals) > 0 else 0:.1f}%)")
         cam.release()
         cv2.destroyAllWindows()
 
@@ -78,7 +105,7 @@ if __name__ == "__main__":
     debug_detection()
     debug_config()
     time.sleep(5)
-    print("[INFO] Starting main...")
+    logger.info("Starting main...")
     time.sleep(3)
     os.system('cls' if os.name == 'nt' else 'clear')
     main()

@@ -8,10 +8,12 @@ def draw_person_status(frame, results):
     alerts = 0
     normals = 0
     has_alert = False
+    has_normal = False
 
     color_map = {
         "Normal": (0, 255, 0),
-        "Phone":  (0, 0, 255)}
+        "Phone":  (0, 0, 255)
+    }
 
     for i, r in enumerate(results):
         x1, y1, x2, y2 = r["bbox"]
@@ -27,10 +29,24 @@ def draw_person_status(frame, results):
             has_alert = True
         else:
             normals += 1
+            has_normal = True
 
-    cv2.putText(frame, f"Alert: {alerts}",  (10, 30),cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255 if alerts > 0 else 0), 2)
-    cv2.putText(frame, f"Normal: {normals}", (10, 60),cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-    return has_alert
+    # ✅ แสดงผลรวมบนภาพ
+    cv2.putText(frame, f"Alert: {alerts}",
+                (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7,
+                (0, 0, 255) if alerts > 0 else (0, 255, 0), 2)
+    cv2.putText(frame, f"Normal: {normals}",
+                (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7,
+                (0, 255, 0), 2)
+
+    # ✅ ส่งออกเป็น dict
+    return {
+        "alerts": alerts,
+        "normals": normals,
+        "has_alert": has_alert,
+        "has_normal": has_normal
+    }
+
 
 def _iou(a: Tuple[int,int,int,int], b: Tuple[int,int,int,int]) -> float:
     ax1, ay1, ax2, ay2 = a
@@ -51,8 +67,10 @@ class PhoneHoldTracker:
         self.iou_thresh = iou_thresh
         self.lost_tolerance = lost_tolerance
         self.tracks = [] 
-        self.last_alert_time = 0.0
-        self.alert_cooldown = alert_cooldown
+        self.last_alert_phone_time = 0.0
+        self.last_alert_normal_time = 0.0
+        self.alert_cooldown_phone = alert_cooldown
+        self.alert_cooldown_normal = alert_cooldown
         self._alert_set = {c.lower() for c in ALERT_CLASSES}
         os.makedirs(SNAPSHOT_DIR, exist_ok=True)
 
@@ -103,6 +121,7 @@ class PhoneHoldTracker:
                 if x2 > x1 and y2 > y1:
                     x1, y1, x2, y2 = map(int, (x1, y1, x2, y2))
                     crop = frame[y1:y2, x1:x2]
+                    crop = cv2.rectangle(crop, (x1, y1), (x2, y2), (255,255,255), 2)
                     ts = time.strftime("%Y%m%d-%H%M%S")
                     filename = f"{ts}.jpg"
                     path = os.path.join(SNAPSHOT_DIR, filename)
