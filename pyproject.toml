@@ -1,7 +1,7 @@
 [project]
 name = "stepguard"
-version = "0.1.0"
-description = "Add your description here"
+version = "1.1.0"
+description = "Real-time phone usage detection system on staircases Developed using **YOLO + OpenCV** with alert notifications and violator image logging to database"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [

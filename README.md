@@ -38,12 +38,20 @@ cd StepGuard
 ### 3️⃣ Install Dependencies
 ```bash
 pip install -r requirements.txt
+
+# or
+
+uv sync
 ```
 ---
 ## 🚀 Usage
 ### 1️⃣ Run Detection System
 ```bash
 python src/main.py
+
+# or
+
+uv run src/main.py
 ```
 ### 2️⃣ Telegram Notifications Setup
 - Create a Bot and get Token from **BotFather**
