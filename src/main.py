@@ -1,5 +1,6 @@
 import cv2
-import os, time
+import os
+import time
 from detection import load_model, infer , parse_results , debug_detection
 from logic import draw_person_status, PhoneHoldTracker
 from camera import VideoSource

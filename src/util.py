@@ -1,5 +1,9 @@
 from config import SNAPSHOT_DIR ,TZ , ACTIVE_START_H , ACTIVE_START_M , ACTIVE_END_H , ACTIVE_END_M
-import os , time, shutil, logging, atexit
+import os
+import time
+import shutil
+import logging
+import atexit
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime, timedelta    
 
@@ -15,9 +19,11 @@ def delete_all_snapshots():
         p = os.path.join(SNAPSHOT_DIR, name)
         try:
             if os.path.isfile(p) or os.path.islink(p):
-                os.remove(p); deleted += 1
+                os.remove(p)
+                deleted += 1
             elif os.path.isdir(p):
-                shutil.rmtree(p); deleted += 1
+                shutil.rmtree(p)
+                deleted += 1
         except Exception as e:
             print(f"[WARN] Delete failed: {p} -> {e}")
     print(f"[INFO] {datetime.now(TZ)} Cleared snapshots ({deleted} items) @ {SNAPSHOT_DIR}")
@@ -68,7 +74,8 @@ if __name__ == "__main__":
         with open(os.path.join(SNAPSHOT_DIR, f"tmp{i}.txt"), "w", encoding="utf-8") as f:
             f.write("test")
     start_scheduler(test_once=True)
-    if SCHED: SCHED.print_jobs()
+    if SCHED: 
+        SCHED.print_jobs()
     try:
         time.sleep(20)
     except KeyboardInterrupt:

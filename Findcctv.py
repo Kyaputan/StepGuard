@@ -80,7 +80,7 @@ def test_rtsp_connection(User, Password, ip):
                         })
                         
                     else:
-                        print(f"   ✗ Connected but couldn't read frames")
+                        print("   ✗ Connected but couldn't read frames")
                 else:
                     print(f"   ✗ Failed to connect with {backend_name}")
                 
@@ -219,9 +219,9 @@ def test_additional_urls(User, Password, ip):
                         'frame_success_rate': "1/1"
                     })
                 else:
-                    print(f"   ✗ Connected but no frames")
+                    print("   ✗ Connected but no frames")
             else:
-                print(f"   ✗ Failed to connect")
+                print("   ✗ Failed to connect")
             
             cap.release()
             
@@ -286,7 +286,7 @@ if __name__ == "__main__":
         
         best_connection = max(all_successful, key=lambda x: (float(x['fps']) if x['fps'] > 0 else 0, int(x['frame_success_rate'].split('/')[0])))
         
-        print(f"\n🏆 RECOMMENDED CONNECTION (Best Performance):")
+        print("\n🏆 RECOMMENDED CONNECTION (Best Performance):")
         print(f"URL: {best_connection['url']}")
         print(f"Backend: {best_connection['backend']}")
         print("\nExample code:")
@@ -307,7 +307,7 @@ if __name__ == "__main__":
         print("7. Try accessing the camera web interface first")
         print("8. Verify the camera supports RTSP protocol")
     
-    print(f"\nTest Summary:")
+    print("\nTest Summary:")
     print(f"Main URL patterns: {len(successful_main)} successful")
     print(f"VLC method: {len(successful_vlc)} successful")  
     print(f"Additional URL patterns: {len(successful_additional)} successful")

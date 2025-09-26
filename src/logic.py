@@ -1,6 +1,7 @@
 import cv2
 from config import  ALERT_CLASSES, SNAPSHOT_DIR, PHONE_HOLD_SECONDS , CROP_FRAME
-import os, time
+import os
+import time
 from typing import List, Dict, Tuple
 from router import notify_violation
 
@@ -51,11 +52,18 @@ def draw_person_status(frame, results):
 def _iou(a: Tuple[int,int,int,int], b: Tuple[int,int,int,int]) -> float:
     ax1, ay1, ax2, ay2 = a
     bx1, by1, bx2, by2 = b
-    inter_x1 = max(ax1, bx1); inter_y1 = max(ay1, by1)
-    inter_x2 = min(ax2, bx2); inter_y2 = min(ay2, by2)
-    iw = max(0, inter_x2 - inter_x1); ih = max(0, inter_y2 - inter_y1)
+    
+    inter_x1 = max(ax1, bx1)
+    inter_y1 = max(ay1, by1)
+    inter_x2 = min(ax2, bx2)
+    inter_y2 = min(ay2, by2)
+    
+    iw = max(0, inter_x2 - inter_x1)
+    ih = max(0, inter_y2 - inter_y1)
     inter = iw * ih
-    if inter == 0: return 0.0
+    
+    if inter == 0: 
+        return 0.0
     a_area = max(0, ax2 - ax1) * max(0, ay2 - ay1)
     b_area = max(0, bx2 - bx1) * max(0, by2 - by1)
     union = a_area + b_area - inter

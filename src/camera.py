@@ -5,8 +5,10 @@ class VideoSource:
         self.cap = cv2.VideoCapture(src , backend)
         self.frame_idx = frame_idx
         self.every_n = every_n
-        if width:  self.cap.set(cv2.CAP_PROP_FRAME_WIDTH,  width)
-        if height: self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+        if width:  
+            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH,  width)
+        if height: 
+            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
     def read(self):
         return self.cap.read()
