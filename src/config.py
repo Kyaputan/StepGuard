@@ -1,6 +1,9 @@
 from zoneinfo import ZoneInfo
 import cv2
 import logging
+import dotenv
+import os
+dotenv.load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -13,8 +16,7 @@ MODEL_CONF = 0.7
 VIDEO_PATH = "./video"
 VIDEO_NAME = "/20250815_131147.mp4"
 INFER = 10
-# RTSP = "rtsp://root01:12345678@192.168.1.102:554/stream1"
-RTSP = "0"
+RTSP = os.getenv("RTSP", "").strip() or "0"
 BACKEND = cv2.CAP_FFMPEG
 MARGIN = 10
 
