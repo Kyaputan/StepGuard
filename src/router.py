@@ -11,13 +11,13 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(mes
 COOLDOWN_SEC = float(os.getenv("COOLDOWN_SEC", "15"))
 last_sent = 0.0  
 
-def _get_env():
+def get_env():
     token = os.getenv("TELEGRAM_TOKEN") or os.getenv("TOKEN")
     chat_id = os.getenv("CHAT_ID")
     return token, chat_id
 
 def send_photo_now(image_path: str, caption: str = "ภาพที่บันทึกจากระบบตรวจจับ 📷"):
-    token, chat_id = _get_env()
+    token, chat_id = get_env()
     if not token or not chat_id:
         logging.error("[Notifier] TOKEN/CHAT_ID ว่าง (ตรวจ .env)")
         return
@@ -39,7 +39,7 @@ def send_photo_now(image_path: str, caption: str = "ภาพที่บัน�
         logging.exception("[Notifier] exception ขณะส่งรูป: %s", e)
 
 def send_text(text: str):
-    token, chat_id = _get_env()
+    token, chat_id = get_env()
     if not token or not chat_id:
         logging.error("[Notifier] TOKEN/CHAT_ID ว่าง (ตรวจ .env)")
         return
