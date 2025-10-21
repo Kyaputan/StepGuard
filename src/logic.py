@@ -20,6 +20,12 @@ def draw_person_status(frame, results):
         x1, y1, x2, y2 = r["bbox"]
         cls_name = r["class"]
 
+        # เบลอส่วนบน 20% ของกรอบ xyxy
+        box_h = y2 - y1
+        blur_h = int(box_h * 0.3)
+        if blur_h > 0:
+            frame[y1:y1+blur_h, x1:x2] = cv2.GaussianBlur(frame[y1:y1+blur_h, x1:x2], (15, 15), 0)
+
         color = color_map.get(cls_name, (255, 255, 255))
         cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
         cv2.putText(frame, f"Person {i+1}: {cls_name}",
@@ -129,6 +135,11 @@ class PhoneHoldTracker:
                 if x2 > x1 and y2 > y1:
                     x1, y1, x2, y2 = map(int, (x1, y1, x2, y2))
                     crop = frame[y1:y2, x1:x2]
+                    crop_h, crop_w = crop.shape[:2]
+                    blur_h = int(crop_h * 0.35)
+                    
+                    if blur_h > 0:
+                        crop[:blur_h, :] = cv2.GaussianBlur(crop[:blur_h, :], (15, 15), 0)
                     crop = cv2.rectangle(crop, (x1, y1), (x2, y2), (255,255,255), 2)
                     ts = time.strftime("%Y%m%d-%H%M%S")
                     filename = f"{ts}.jpg"
