@@ -136,10 +136,10 @@ class PhoneHoldTracker:
                     x1, y1, x2, y2 = map(int, (x1, y1, x2, y2))
                     crop = frame[y1:y2, x1:x2]
                     crop_h, crop_w = crop.shape[:2]
-                    blur_h = int(crop_h * 0.35)
+                    blur_h = int(crop_h * 0.38)
                     
                     if blur_h > 0:
-                        crop[:blur_h, :] = cv2.GaussianBlur(crop[:blur_h, :], (15, 15), 0)
+                        crop[:blur_h, :] = cv2.GaussianBlur(crop[:blur_h, :], (25, 25), 0)
                     crop = cv2.rectangle(crop, (x1, y1), (x2, y2), (255,255,255), 2)
                     ts = time.strftime("%Y%m%d-%H%M%S")
                     filename = f"{ts}.jpg"
