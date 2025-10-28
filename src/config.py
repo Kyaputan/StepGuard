@@ -9,13 +9,13 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 #==== detection.py ==== 
 WEIGHTS_DIR = "./model"
-MODEL_NAME = "guard.onnx"
-MODEL_CONF = 0.7
+MODEL_NAME = "guard.pt"
+MODEL_CONF = 0.4
 
 #==== main.py ==== 
-VIDEO_PATH = "./video"
-VIDEO_NAME = "/20250815_131147.mp4"
-INFER = 10
+VIDEO_PATH = "./src/utils/save/"
+VIDEO_NAME = "recorded_video.avi"
+INFER = 1
 RTSP = os.getenv("RTSP", "").strip() or "0"
 BACKEND = cv2.CAP_FFMPEG
 MARGIN = 10

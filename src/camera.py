@@ -15,6 +15,9 @@ class VideoSource:
 
     def release(self):
         self.cap.release()
+        
+    def grab(self):
+        return self.cap.grab()
 
     def should_infer(self):
         return self.frame_idx % self.every_n == 0

@@ -40,17 +40,19 @@ def main():
             if not ok:
                 logger.error("Camera read failed")
                 break
-            
+            for _ in range(5):
+                cam.grab()
+
             frame = cv2.resize(frame, (640, 640))
             active = is_active_hour(now)
-            
+
             if not active:
                 if prev_active is None or prev_active is True:
                     logger.info(f"[INFO {now.time()}] OFF-HOURS: pause YOLO now")
                     send_text(
-                    f"วันนี้ตรวจจับได้ทั้งหมด {total_alerts + total_normals} คน\n"
-                    f"- มีคนใช้โทรศัพท์ {total_alerts} คน ({(total_alerts / (total_alerts + total_normals)) * 100 if (total_alerts + total_normals) > 0 else 0:.1f}%)\n"
-                    f"- มีคนไม่ใช้โทรศัพท์ {total_normals} คน ({(total_normals / (total_alerts + total_normals)) * 100 if (total_alerts + total_normals) > 0 else 0:.1f}%)")
+                    f"วันนี้ตรวจจับได้ทั้งหมด {total_alerts + total_normals} ครั้ง\n"
+                    f"- มีคนใช้โทรศัพท์ {total_alerts} ครั้ง ({(total_alerts / (total_alerts + total_normals)) * 100 if (total_alerts + total_normals) > 0 else 0:.1f}%)\n"
+                    f"- มีคนไม่ใช้โทรศัพท์ {total_normals} ครั้ง ({(total_normals / (total_alerts + total_normals)) * 100 if (total_alerts + total_normals) > 0 else 0:.1f}%)")
                     time.sleep(1)
                     last_results = []
                     total_alerts = 0
@@ -95,9 +97,9 @@ def main():
         logger.info(f"total_normals: {total_normals}")
         logger.info(f"total_alerts: {total_alerts}")
         send_text(
-                    f"วันนี้ตรวจจับได้ทั้งหมด {total_alerts + total_normals} คน\n"
-                    f"- มีคนใช้โทรศัพท์ {total_alerts} คน ({(total_alerts / (total_alerts + total_normals)) * 100 if (total_alerts + total_normals) > 0 else 0:.1f}%)\n"
-                    f"- มีคนไม่ใช้โทรศัพท์ {total_normals} คน ({(total_normals / (total_alerts + total_normals)) * 100 if (total_alerts + total_normals) > 0 else 0:.1f}%)")
+                    f"วันนี้ตรวจจับได้ทั้งหมด {total_alerts + total_normals} ครั้ง\n"
+                    f"- มีคนใช้โทรศัพท์ {total_alerts} ครั้ง ({(total_alerts / (total_alerts + total_normals)) * 100 if (total_alerts + total_normals) > 0 else 0:.1f}%)\n"
+                    f"- มีคนไม่ใช้โทรศัพท์ {total_normals} ครั้ง ({(total_normals / (total_alerts + total_normals)) * 100 if (total_alerts + total_normals) > 0 else 0:.1f}%)")
         cam.release()
         cv2.destroyAllWindows()
 

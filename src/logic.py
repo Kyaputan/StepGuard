@@ -24,7 +24,7 @@ def draw_person_status(frame, results):
         box_h = y2 - y1
         blur_h = int(box_h * 0.3)
         if blur_h > 0:
-            frame[y1:y1+blur_h, x1:x2] = cv2.GaussianBlur(frame[y1:y1+blur_h, x1:x2], (15, 15), 0)
+            frame[y1:y1+blur_h, x1:x2] = cv2.GaussianBlur(frame[y1:y1 + blur_h, x1:x2], (15, 15), 0)
 
         color = color_map.get(cls_name, (255, 255, 255))
         cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
