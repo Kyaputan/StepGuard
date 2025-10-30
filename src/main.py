@@ -19,8 +19,8 @@ def main():
         model = load_model()
         os.makedirs(VIDEO_PATH, exist_ok=True)
         os.makedirs(SNAPSHOT_DIR, exist_ok=True)
-        # cam = VideoSource(RTSP,BACKEND , every_n=INFER)
-        cam = VideoSource(VIDEO_PATH + VIDEO_NAME, every_n=INFER)
+        cam = VideoSource(RTSP,BACKEND , every_n=INFER)
+        # cam = VideoSource(VIDEO_PATH + VIDEO_NAME, every_n=INFER)
         tracker = PhoneHoldTracker()  
         next_clear = next_midnight_bkk()
         last_results = []
@@ -40,6 +40,7 @@ def main():
             if not ok:
                 logger.error("Camera read failed")
                 break
+            
             for _ in range(5):
                 cam.grab()
 
@@ -58,7 +59,6 @@ def main():
                     total_alerts = 0
                     total_normals = 0
                 cv2.imshow("Detection", frame)
-                time.sleep(2)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
                 prev_active = False

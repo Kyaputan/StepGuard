@@ -65,7 +65,7 @@ def save_video_from_rtsp(rtsp_url, output_path, duration=10):
 
 if __name__ == "__main__":
     # ตัวอย่างการใช้งาน
-    rtsp_url = "rtsp://Rachata:12345678@192.168.1.102:554/stream1"
+    rtsp_url = "rtsp://Rachata:12345678@192.168.1.102/stream1"
     uid = random.randint(1, 100000)
     output_path = "src/utils/save/recorded_{}.avi".format(uid)
-    save_video_from_rtsp(rtsp_url, output_path, duration=120)  # บันทึก 30 วินาที
+    save_video_from_rtsp(rtsp_url, output_path, duration=180)  # บันทึก 30 วินาที

@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 #==== detection.py ==== 
 WEIGHTS_DIR = "./model"
 MODEL_NAME = "guard.pt"
-MODEL_CONF = 0.4
+MODEL_CONF = 0.3
 
 #==== main.py ==== 
 VIDEO_PATH = "./src/utils/save/"
@@ -33,7 +33,7 @@ ACTIVE_START_H = 6
 ACTIVE_START_M = 30
 
 ACTIVE_END_H = 17
-ACTIVE_END_M = 40 
+ACTIVE_END_M = 10
 
 TZ = ZoneInfo("Asia/Bangkok")
 

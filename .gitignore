@@ -5,7 +5,7 @@ __pycache__/
 
 # C extensions
 *.so
-
+save/
 # Distribution / packaging
 .Python
 build/
@@ -181,3 +181,4 @@ cython_debug/
 .cursorindexingignore
 /video
 /snapshots
+*.avi

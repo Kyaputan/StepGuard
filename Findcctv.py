@@ -11,8 +11,8 @@ init(autoreset=True)
 CONFIG = {
     'user': 'Rachata', #TODO: username
     'password': '12345678', #TODO: password
-    'ip': '192.168.1.100', #TODO: ip address
-    'ports_to_test': [554, 556, 8554, 7447, 1935, 80, 8080], 
+    'ip': '192.168.1.102', #TODO: ip address
+    'ports_to_test': [554, 556, 1935, 80, 8080], 
     'open_timeout': 1500,
     'read_timeout': 800,
     'buffer_size': 1,
@@ -22,14 +22,9 @@ CONFIG = {
         '/stream1',
         ':554/stream1',
         '/live/stream1',
-        '/h264',
         '/cam/realmonitor?channel=1&subtype=0',
-        '/onvif1',
         '/Streaming/Channels/101',
-        '/videoMain',
         ':556/Streaming/Channels/1',
-        ':556/Streaming/Channels/101/',
-        ':556/Streaming/Channels/1/',
         ':556/',
     ],
     'vlc_urls': [
@@ -38,7 +33,6 @@ CONFIG = {
         ':556/stream1',
         ':556/stream2',
         '/live/stream1',
-        '/h264'
     ],
     'additional_urls': [
         # Common Hikvision patterns
@@ -55,15 +49,12 @@ CONFIG = {
         '/1',
         '/channel1',
         '/media/video1',
-        ':8554/',
+
         ':556/Streaming/Channels/1',
         ':556/Streaming/Channels/101/',
         ':556/Streaming/Channels/1/',
         ':556/',
-        # Different ports
-        ':8554/stream1',
-        ':7447/stream1',
-        ':1935/stream1'
+
     ]
 }
 
