@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
 
-COOLDOWN_SEC = float(os.getenv("COOLDOWN_SEC", "15"))
+COOLDOWN_SEC = float(os.getenv("COOLDOWN_SEC", "30"))
 last_sent = 0.0  
 
 def get_env():

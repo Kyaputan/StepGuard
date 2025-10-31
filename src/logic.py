@@ -3,7 +3,6 @@ from config import  ALERT_CLASSES, SNAPSHOT_DIR, PHONE_HOLD_SECONDS , CROP_FRAME
 import os
 import time
 from typing import List, Dict, Tuple
-from router import notify_violation
 
 def draw_person_status(frame, results):
     alerts = 0
@@ -148,7 +147,7 @@ class PhoneHoldTracker:
                     if not ok:
                         print(f"[Tracker] บันทึกรูปไม่สำเร็จ: {path}")
                     else:
-                        notify_violation(image_path=path)
+                        return path
                     t["triggered"] = True
 
         self.tracks = [t for t in self.tracks if (now - t["last"]) <= self.lost_tolerance]

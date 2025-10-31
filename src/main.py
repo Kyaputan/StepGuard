@@ -11,7 +11,7 @@ from router import send_text
 import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-
+from router import notify_violation
 
 def main():
     try:
@@ -74,12 +74,14 @@ def main():
             else:
                 person_results = last_results if last_results else []
             if person_results:
-                tracker.update(person_results, frame, time.time())
+                path = tracker.update(person_results, frame, time.time())
                 status = draw_person_status(frame, person_results)
                 if status["has_alert"] and time.time() - tracker.last_alert_phone_time > tracker.alert_cooldown_phone:
                     logger.info("Phone detected")
                     tracker.last_alert_phone_time = time.time()
                     total_alerts += status["alerts"]
+                    if path:
+                        notify_violation(path)
                 if status["has_normal"] and time.time() - tracker.last_alert_normal_time > tracker.alert_cooldown_normal:
                     logger.info("Normal detected")
                     tracker.last_alert_normal_time = time.time()
