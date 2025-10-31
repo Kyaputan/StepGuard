@@ -90,6 +90,7 @@ def main():
 
             # cv2.imshow("Detection", frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
+                logger.info("[INFO] Exit")
                 break
             prev_active = True
             cam.frame_idx += 1
