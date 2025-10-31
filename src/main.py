@@ -58,7 +58,7 @@ def main():
                     last_results = []
                     total_alerts = 0
                     total_normals = 0
-                cv2.imshow("Detection", frame)
+                # cv2.imshow("Detection", frame)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
                 prev_active = False
@@ -86,7 +86,7 @@ def main():
                     total_normals += status["normals"]
 
 
-            cv2.imshow("Detection", frame)
+            # cv2.imshow("Detection", frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
             prev_active = True
