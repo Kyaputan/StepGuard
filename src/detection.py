@@ -6,8 +6,7 @@ import torch
 def load_model():
     try:
         model_path = os.path.join(WEIGHTS_DIR, MODEL_NAME)
-        model = YOLO(model_path , task="detect")
-        model.model.eval()   
+        model = YOLO(model_path , task="detect") 
         return model
     except Exception as e:
         print(f"[Detection] Failed to load model: {e}")

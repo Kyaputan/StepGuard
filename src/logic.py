@@ -2,7 +2,10 @@ import cv2
 from config import  ALERT_CLASSES, SNAPSHOT_DIR, PHONE_HOLD_SECONDS , CROP_FRAME
 import os
 import time
+import logging
 from typing import List, Dict, Tuple
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 def draw_person_status(frame, results):
     alerts = 0
@@ -88,7 +91,9 @@ class PhoneHoldTracker:
         os.makedirs(SNAPSHOT_DIR, exist_ok=True)
 
     def update(self, detections: List[Dict], frame, now: float):
+        logger.debug(f"[Tracker] Received {len(detections)} detections")
         phone_dets = [d for d in detections if d["class"].lower() in self._alert_set]
+        logger.debug(f"[Tracker] Filtered to {len(phone_dets)} phone detections")
 
         assigned = set()
         for t in self.tracks:
@@ -115,6 +120,7 @@ class PhoneHoldTracker:
             })
 
         h, w = frame.shape[:2]
+        logger.debug(f"[Tracker] Processing {len(self.tracks)} tracks")
         for t in self.tracks:
             if not t["triggered"] and (now - t["start"]) >= self.hold_seconds:
                 x1, y1, x2, y2 = t["bbox"]
@@ -146,13 +152,16 @@ class PhoneHoldTracker:
                     try:
                         ok = cv2.imwrite(path, crop)
                         if not ok:
-                            print(f"[Tracker] บันทึกรูปไม่สำเร็จ: {path}")
+                            logger.error(f"[Tracker] บันทึกรูปไม่สำเร็จ: {path}")
                             return None
                         else:
+                            logger.info(f"[Tracker] บันทึกรูปสำเร็จ: {path}")
                             return path
                     except Exception as e:
-                        print(f"[Tracker] บันทึกรูปไม่สำเร็จ: {path}, error: {e}")
+                        logger.error(f"[Tracker] บันทึกรูปไม่สำเร็จ: {path}, error: {e}")
                         return None
                     t["triggered"] = True
+                    logger.info(f"[Tracker] Triggered alert for track, saved to {path}")
 
         self.tracks = [t for t in self.tracks if (now - t["last"]) <= self.lost_tolerance]
+        logger.debug(f"[Tracker] Active tracks: {len(self.tracks)}")

@@ -9,10 +9,12 @@ from util import is_active_hour , start_scheduler , next_midnight_bkk
 from datetime import datetime
 from router import send_text
 import logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 from router import notify_violation
 import gc, torch
+import psutil
+import os
 
 def main():
     try:
@@ -20,8 +22,8 @@ def main():
         model = load_model()
         os.makedirs(VIDEO_PATH, exist_ok=True)
         os.makedirs(SNAPSHOT_DIR, exist_ok=True)
-        cam = VideoSource(RTSP,BACKEND , every_n=INFER)
-        # cam = VideoSource(VIDEO_PATH + VIDEO_NAME, every_n=INFER)
+        cam = VideoSource(VIDEO_PATH + VIDEO_NAME,BACKEND , every_n=INFER)
+        # cam = VideoSource(RTSP,BACKEND , every_n=INFER)
         tracker = PhoneHoldTracker()  
         next_clear = next_midnight_bkk()
         last_results = []
@@ -29,6 +31,7 @@ def main():
         total_alerts = 0
         total_normals = 0
         frame_count = 0
+        process = psutil.Process(os.getpid())
     except Exception as e:
         logger.error(f"[ERROR] Initialization failed: {e}")
         return
@@ -43,11 +46,14 @@ def main():
                 logger.error("Camera read failed")
                 time.sleep(1)  # เพิ่ม sleep เพื่อป้องกัน loop เร็วเกินไป
                 continue
+            logger.debug(f"[Camera] Read frame {frame_count}, shape: {frame.shape}")
 
             for _ in range(5):
                 cam.grab()
+            logger.debug(f"[Camera] Grabbed 5 frames")
 
             frame = cv2.resize(frame, (640, 640))
+            logger.debug(f"[Processing] Resized frame to {frame.shape}")
             active = is_active_hour(now)
 
             if not active:
@@ -73,10 +79,12 @@ def main():
                 logger.info(f"[INFO {now.time()}] ON-HOURS: resume YOLO")
             if cam.should_infer():
                 try:
+                    logger.debug(f"[Inference] Starting inference on frame {frame_count}")
                     yolo_results = infer(model, frame)
                     person_results = parse_results(yolo_results , margin=MARGIN)
                     del yolo_results
                     last_results = person_results
+                    logger.debug(f"[Inference] Detected {len(person_results)} persons")
                 except Exception as e:
                     logger.error(f"[ERROR] Inference failed: {e}")
                     person_results = last_results if last_results else []
@@ -84,6 +92,7 @@ def main():
                 person_results = last_results if last_results else []
             if person_results:
                 try:
+                    logger.debug(f"[Processing] Updating tracker with {len(person_results)} detections")
                     path = tracker.update(person_results, frame, time.time())
                     status = draw_person_status(frame, person_results)
                     if status["has_alert"] and time.time() - tracker.last_alert_phone_time > tracker.alert_cooldown_phone:
@@ -91,6 +100,7 @@ def main():
                         tracker.last_alert_phone_time = time.time()
                         total_alerts += status["alerts"]
                         if path:
+                            logger.debug(f"[Alert] Sending violation notification for {path}")
                             notify_violation(path)
                     if status["has_normal"] and time.time() - tracker.last_alert_normal_time > tracker.alert_cooldown_normal:
                         logger.info("Normal detected")
@@ -102,8 +112,10 @@ def main():
 
             # cv2.imshow("Detection", frame)
             frame_count += 1
-            if torch.cuda.is_available() and frame_count % 200 == 0:
-                torch.cuda.empty_cache()
+            if frame_count % 100 == 0:
+                mem_info = process.memory_info()
+                logger.info(f"[DEBUG] Frame {frame_count}: RAM usage: {mem_info.rss / 1024 / 1024:.2f} MB")
+            if frame_count % 200 == 0:
                 gc.collect()
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 logger.info("[INFO] Exit")

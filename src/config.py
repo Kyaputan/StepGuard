@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 #==== detection.py ==== 
 WEIGHTS_DIR = "./model"
-MODEL_NAME = "guard.pt"
+MODEL_NAME = "guard_openvino_model/"
 MODEL_CONF = 0.3
 
 #==== main.py ==== 
