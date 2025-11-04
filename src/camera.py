@@ -11,13 +11,24 @@ class VideoSource:
             self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
     def read(self):
-        return self.cap.read()
+        try:
+            return self.cap.read()
+        except Exception as e:
+            print(f"[Camera] Read error: {e}")
+            return False, None
 
     def release(self):
-        self.cap.release()
+        try:
+            self.cap.release()
+        except Exception as e:
+            print(f"[Camera] Release error: {e}")
         
     def grab(self):
-        return self.cap.grab()
+        try:
+            return self.cap.grab()
+        except Exception as e:
+            print(f"[Camera] Grab error: {e}")
+            return False
 
     def should_infer(self):
         return self.frame_idx % self.every_n == 0

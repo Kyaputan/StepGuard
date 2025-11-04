@@ -143,11 +143,16 @@ class PhoneHoldTracker:
                     ts = time.strftime("%Y%m%d-%H%M%S")
                     filename = f"{ts}.jpg"
                     path = os.path.join(SNAPSHOT_DIR, filename)
-                    ok = cv2.imwrite(path, crop)
-                    if not ok:
-                        print(f"[Tracker] บันทึกรูปไม่สำเร็จ: {path}")
-                    else:
-                        return path
+                    try:
+                        ok = cv2.imwrite(path, crop)
+                        if not ok:
+                            print(f"[Tracker] บันทึกรูปไม่สำเร็จ: {path}")
+                            return None
+                        else:
+                            return path
+                    except Exception as e:
+                        print(f"[Tracker] บันทึกรูปไม่สำเร็จ: {path}, error: {e}")
+                        return None
                     t["triggered"] = True
 
         self.tracks = [t for t in self.tracks if (now - t["last"]) <= self.lost_tolerance]

@@ -28,7 +28,7 @@ def main():
         total_alerts = 0
         total_normals = 0
     except Exception as e:
-        logger.error(f"[ERROR] {e}")
+        logger.error(f"[ERROR] Initialization failed: {e}")
         return
     
     try:
@@ -39,8 +39,9 @@ def main():
             ok, frame = cam.read()
             if not ok:
                 logger.error("Camera read failed")
+                time.sleep(1)  # เพิ่ม sleep เพื่อป้องกัน loop เร็วเกินไป
                 continue
-            
+
             for _ in range(5):
                 cam.grab()
 
@@ -63,29 +64,37 @@ def main():
                     break
                 prev_active = False
                 cam.frame_idx += 1
+                time.sleep(0.1)  # เพิ่ม sleep เล็กน้อยเพื่อลด CPU usage
                 continue
-            
+
             if prev_active is None or prev_active is False:
                 logger.info(f"[INFO {now.time()}] ON-HOURS: resume YOLO")
             if cam.should_infer():
-                yolo_results = infer(model, frame)
-                person_results = parse_results(yolo_results , margin=MARGIN)
-                last_results = person_results
+                try:
+                    yolo_results = infer(model, frame)
+                    person_results = parse_results(yolo_results , margin=MARGIN)
+                    last_results = person_results
+                except Exception as e:
+                    logger.error(f"[ERROR] Inference failed: {e}")
+                    person_results = last_results if last_results else []
             else:
                 person_results = last_results if last_results else []
             if person_results:
-                path = tracker.update(person_results, frame, time.time())
-                status = draw_person_status(frame, person_results)
-                if status["has_alert"] and time.time() - tracker.last_alert_phone_time > tracker.alert_cooldown_phone:
-                    logger.info("Phone detected")
-                    tracker.last_alert_phone_time = time.time()
-                    total_alerts += status["alerts"]
-                    if path:
-                        notify_violation(path)
-                if status["has_normal"] and time.time() - tracker.last_alert_normal_time > tracker.alert_cooldown_normal:
-                    logger.info("Normal detected")
-                    tracker.last_alert_normal_time = time.time()
-                    total_normals += status["normals"]
+                try:
+                    path = tracker.update(person_results, frame, time.time())
+                    status = draw_person_status(frame, person_results)
+                    if status["has_alert"] and time.time() - tracker.last_alert_phone_time > tracker.alert_cooldown_phone:
+                        logger.info("Phone detected")
+                        tracker.last_alert_phone_time = time.time()
+                        total_alerts += status["alerts"]
+                        if path:
+                            notify_violation(path)
+                    if status["has_normal"] and time.time() - tracker.last_alert_normal_time > tracker.alert_cooldown_normal:
+                        logger.info("Normal detected")
+                        tracker.last_alert_normal_time = time.time()
+                        total_normals += status["normals"]
+                except Exception as e:
+                    logger.error(f"[ERROR] Processing results failed: {e}")
 
 
             # cv2.imshow("Detection", frame)
@@ -94,16 +103,23 @@ def main():
                 break
             prev_active = True
             cam.frame_idx += 1
+            time.sleep(0.01)  # เพิ่ม sleep เล็กน้อยเพื่อลด CPU usage
             
     finally:
         logger.info("Releasing camera")
         logger.info(f"total_normals: {total_normals}")
         logger.info(f"total_alerts: {total_alerts}")
-        send_text(
-                    f"วันนี้ตรวจจับได้ทั้งหมด {total_alerts + total_normals} ครั้ง\n"
-                    f"- มีคนใช้โทรศัพท์ {total_alerts} ครั้ง ({(total_alerts / (total_alerts + total_normals)) * 100 if (total_alerts + total_normals) > 0 else 0:.1f}%)\n"
-                    f"- มีคนไม่ใช้โทรศัพท์ {total_normals} ครั้ง ({(total_normals / (total_alerts + total_normals)) * 100 if (total_alerts + total_normals) > 0 else 0:.1f}%)")
-        cam.release()
+        try:
+            send_text(
+                        f"วันนี้ตรวจจับได้ทั้งหมด {total_alerts + total_normals} ครั้ง\n"
+                        f"- มีคนใช้โทรศัพท์ {total_alerts} ครั้ง ({(total_alerts / (total_alerts + total_normals)) * 100 if (total_alerts + total_normals) > 0 else 0:.1f}%)\n"
+                        f"- มีคนไม่ใช้โทรศัพท์ {total_normals} ครั้ง ({(total_normals / (total_alerts + total_normals)) * 100 if (total_alerts + total_normals) > 0 else 0:.1f}%)")
+        except Exception as e:
+            logger.error(f"[ERROR] Failed to send final report: {e}")
+        try:
+            cam.release()
+        except Exception as e:
+            logger.error(f"[ERROR] Failed to release camera: {e}")
         cv2.destroyAllWindows()
 
 if __name__ == "__main__":

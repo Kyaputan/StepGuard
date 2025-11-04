@@ -3,12 +3,20 @@ from ultralytics import YOLO
 from config import WEIGHTS_DIR, MODEL_NAME, MODEL_CONF
 
 def load_model():
-    model_path = os.path.join(WEIGHTS_DIR, MODEL_NAME)
-    model = YOLO(model_path , task="detect")
-    return model
+    try:
+        model_path = os.path.join(WEIGHTS_DIR, MODEL_NAME)
+        model = YOLO(model_path , task="detect")
+        return model
+    except Exception as e:
+        print(f"[Detection] Failed to load model: {e}")
+        raise
 
 def infer(model, frame):
-    return model(frame, conf=MODEL_CONF)[0]
+    try:
+        return model(frame, conf=MODEL_CONF)[0]
+    except Exception as e:
+        print(f"[Detection] Inference error: {e}")
+        raise
 
 def parse_results(results, margin: int = 10):
     parsed = []
