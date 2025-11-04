@@ -1,11 +1,11 @@
 import cv2
-from config import  ALERT_CLASSES, SNAPSHOT_DIR, PHONE_HOLD_SECONDS , CROP_FRAME
+from config import  ALERT_CLASSES, SNAPSHOT_DIR, PHONE_HOLD_SECONDS , CROP_FRAME, LOST_TOLERANCE
 import os
 import time
 import logging
 from typing import List, Dict, Tuple
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 def draw_person_status(frame, results):
     alerts = 0
@@ -78,7 +78,7 @@ def _iou(a: Tuple[int,int,int,int], b: Tuple[int,int,int,int]) -> float:
     return inter / union if union > 0 else 0.0
 
 class PhoneHoldTracker:
-    def __init__(self, hold_seconds: float = PHONE_HOLD_SECONDS,iou_thresh: float = 0.5, lost_tolerance: float = 1.0, alert_cooldown: float = 10.0):
+    def __init__(self, hold_seconds: float = PHONE_HOLD_SECONDS,iou_thresh: float = 0.5, lost_tolerance: float = LOST_TOLERANCE, alert_cooldown: float = 10.0):
         self.hold_seconds = hold_seconds
         self.iou_thresh = iou_thresh
         self.lost_tolerance = lost_tolerance
@@ -160,8 +160,9 @@ class PhoneHoldTracker:
                     except Exception as e:
                         logger.error(f"[Tracker] บันทึกรูปไม่สำเร็จ: {path}, error: {e}")
                         return None
-                    t["triggered"] = True
-                    logger.info(f"[Tracker] Triggered alert for track, saved to {path}")
+                    finally:
+                        t["triggered"] = True
+                        logger.info(f"[Tracker] Triggered alert for track, saved to {path}")
 
         self.tracks = [t for t in self.tracks if (now - t["last"]) <= self.lost_tolerance]
-        logger.debug(f"[Tracker] Active tracks: {len(self.tracks)}")
+        logger.debug(f"[Tracker] Active tracks: {len(self.tracks)}, cleaned {len([t for t in self.tracks if (now - t['last']) > self.lost_tolerance])} old tracks")

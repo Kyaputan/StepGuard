@@ -25,7 +25,8 @@ SNAPSHOT_DIR = "./snapshots"
 PHONE_HOLD_SECONDS = 4
 ALERT_CLASSES = {"Phone"}
 CROP_FRAME = [0.7,0.5]
-#==== router.py ==== 
+LOST_TOLERANCE = 5.0  # เพิ่มเพื่อ clear tracks ที่ inactive เร็วขึ้น
+#==== router.py ====
 COOLDOWN_SEC = 10
 
 #==== util.py ==== 

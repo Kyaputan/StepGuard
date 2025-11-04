@@ -9,7 +9,7 @@ from util import is_active_hour , start_scheduler , next_midnight_bkk
 from datetime import datetime
 from router import send_text
 import logging
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 from router import notify_violation
 import gc, torch
@@ -47,14 +47,19 @@ def main():
                 time.sleep(1)  # เพิ่ม sleep เพื่อป้องกัน loop เร็วเกินไป
                 continue
             logger.debug(f"[Camera] Read frame {frame_count}, shape: {frame.shape}")
+            # Convert to RGB if needed and ensure proper format
+            if frame is not None:
+                frame = frame.copy()  # Ensure we have a copy to avoid memory issues
 
-            for _ in range(5):
+            for _ in range(3):
                 cam.grab()
-            logger.debug(f"[Camera] Grabbed 5 frames")
+            logger.debug(f"[Camera] Grabbed 3 frames")
 
             frame = cv2.resize(frame, (640, 640))
             logger.debug(f"[Processing] Resized frame to {frame.shape}")
             active = is_active_hour(now)
+            # Clear any previous frame references
+            gc.collect()
 
             if not active:
                 if prev_active is None or prev_active is True:
@@ -83,6 +88,9 @@ def main():
                     yolo_results = infer(model, frame)
                     person_results = parse_results(yolo_results , margin=MARGIN)
                     del yolo_results
+                    # Clear any cached tensors after inference
+                    if torch.cuda.is_available():
+                        torch.cuda.empty_cache()
                     last_results = person_results
                     logger.debug(f"[Inference] Detected {len(person_results)} persons")
                 except Exception as e:
@@ -95,6 +103,8 @@ def main():
                     logger.debug(f"[Processing] Updating tracker with {len(person_results)} detections")
                     path = tracker.update(person_results, frame, time.time())
                     status = draw_person_status(frame, person_results)
+                    # Clear frame after processing to free memory
+                    del frame
                     if status["has_alert"] and time.time() - tracker.last_alert_phone_time > tracker.alert_cooldown_phone:
                         logger.info("Phone detected")
                         tracker.last_alert_phone_time = time.time()
@@ -112,10 +122,13 @@ def main():
 
             # cv2.imshow("Detection", frame)
             frame_count += 1
-            if frame_count % 100 == 0:
+            if frame_count % 50 == 0:
                 mem_info = process.memory_info()
                 logger.info(f"[DEBUG] Frame {frame_count}: RAM usage: {mem_info.rss / 1024 / 1024:.2f} MB")
-            if frame_count % 200 == 0:
+                # Force garbage collection every 50 frames
+                gc.collect()
+            if torch.cuda.is_available() and frame_count % 100 == 0:
+                torch.cuda.empty_cache()
                 gc.collect()
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 logger.info("[INFO] Exit")
