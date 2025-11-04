@@ -39,7 +39,7 @@ def main():
             ok, frame = cam.read()
             if not ok:
                 logger.error("Camera read failed")
-                break
+                continue
             
             for _ in range(5):
                 cam.grab()
