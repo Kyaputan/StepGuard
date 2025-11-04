@@ -5,6 +5,10 @@ class VideoSource:
         self.cap = cv2.VideoCapture(src , backend)
         self.frame_idx = frame_idx
         self.every_n = every_n
+        try:
+            self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+        except Exception:
+            pass
         if width:  
             self.cap.set(cv2.CAP_PROP_FRAME_WIDTH,  width)
         if height: 

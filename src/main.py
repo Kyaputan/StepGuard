@@ -12,6 +12,7 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 from router import notify_violation
+import gc, torch
 
 def main():
     try:
@@ -27,6 +28,7 @@ def main():
         prev_active = None
         total_alerts = 0
         total_normals = 0
+        frame_count = 0
     except Exception as e:
         logger.error(f"[ERROR] Initialization failed: {e}")
         return
@@ -73,6 +75,7 @@ def main():
                 try:
                     yolo_results = infer(model, frame)
                     person_results = parse_results(yolo_results , margin=MARGIN)
+                    del yolo_results
                     last_results = person_results
                 except Exception as e:
                     logger.error(f"[ERROR] Inference failed: {e}")
@@ -98,6 +101,10 @@ def main():
 
 
             # cv2.imshow("Detection", frame)
+            frame_count += 1
+            if torch.cuda.is_available() and frame_count % 200 == 0:
+                torch.cuda.empty_cache()
+                gc.collect()
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 logger.info("[INFO] Exit")
                 break
