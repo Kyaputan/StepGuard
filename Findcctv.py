@@ -2,7 +2,7 @@ import cv2
 import time
 import os
 import socket
-from colorama import init, Fore, Back, Style
+from colorama import init, Fore, Style
 
 # Initialize colorama for cross-platform colored terminal output
 init(autoreset=True)

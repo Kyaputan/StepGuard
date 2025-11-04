@@ -4,17 +4,17 @@ import time
 from detection import load_model, infer , parse_results , debug_detection
 from logic import draw_person_status, PhoneHoldTracker
 from camera import VideoSource
-from config import SNAPSHOT_DIR , VIDEO_PATH , VIDEO_NAME , INFER , TZ , MARGIN , RTSP , BACKEND, debug_config
-from util import is_active_hour , start_scheduler , next_midnight_bkk
+from config import SNAPSHOT_DIR , VIDEO_PATH , INFER , TZ , MARGIN , RTSP , BACKEND, debug_config
+from util import is_active_hour , start_scheduler
 from datetime import datetime
 from router import send_text
 import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 from router import notify_violation
-import gc, torch
+import gc
+import torch
 import psutil
-import os
 
 def main():
     try:
@@ -22,10 +22,9 @@ def main():
         model = load_model()
         os.makedirs(VIDEO_PATH, exist_ok=True)
         os.makedirs(SNAPSHOT_DIR, exist_ok=True)
-        cam = VideoSource(VIDEO_PATH + VIDEO_NAME,BACKEND , every_n=INFER)
-        # cam = VideoSource(RTSP,BACKEND , every_n=INFER)
+        # cam = VideoSource(VIDEO_PATH + VIDEO_NAME,BACKEND , every_n=INFER)
+        cam = VideoSource(RTSP,BACKEND , every_n=INFER)
         tracker = PhoneHoldTracker()  
-        next_clear = next_midnight_bkk()
         last_results = []
         prev_active = None
         total_alerts = 0
@@ -39,8 +38,6 @@ def main():
     try:
         while True:
             now = datetime.now(TZ)
-            if now >= next_clear:
-                next_clear = next_midnight_bkk(now)
             ok, frame = cam.read()
             if not ok:
                 logger.error("Camera read failed")
@@ -53,7 +50,7 @@ def main():
 
             for _ in range(3):
                 cam.grab()
-            logger.debug(f"[Camera] Grabbed 3 frames")
+            logger.debug("[Camera] Grabbed 3 frames")
 
             frame = cv2.resize(frame, (640, 640))
             logger.debug(f"[Processing] Resized frame to {frame.shape}")
@@ -135,8 +132,6 @@ def main():
                 break
             prev_active = True
             cam.frame_idx += 1
-            time.sleep(0.01)  # เพิ่ม sleep เล็กน้อยเพื่อลด CPU usage
-            
     finally:
         logger.info("Releasing camera")
         logger.info(f"total_normals: {total_normals}")
