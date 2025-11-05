@@ -48,7 +48,7 @@ def main():
             if frame is not None:
                 frame = frame.copy()  # Ensure we have a copy to avoid memory issues
 
-            for _ in range(3):
+            for _ in range(5):
                 cam.grab()
             logger.debug("[Camera] Grabbed 3 frames")
 
