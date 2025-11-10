@@ -11,7 +11,7 @@ init(autoreset=True)
 CONFIG = {
     'user': 'Rachata', #TODO: username
     'password': '12345678', #TODO: password
-    'ip': '192.168.1.102', #TODO: ip address
+    'ip': '192.168.1.100', #TODO: ip address
     'ports_to_test': [554, 556, 1935, 80, 8080], 
     'open_timeout': 1500,
     'read_timeout': 800,
