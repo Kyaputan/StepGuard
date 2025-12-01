@@ -10,11 +10,11 @@ logger = logging.getLogger(__name__)
 #==== detection.py ==== 
 WEIGHTS_DIR = "./model"
 MODEL_NAME = "guard.onnx"
-MODEL_CONF = 0.3
+MODEL_CONF = 0.1
 
 #==== main.py ==== 
-VIDEO_PATH = "./src/utils/save/"
-VIDEO_NAME = "recorded_video.avi"
+VIDEO_PATH = "./video/"
+VIDEO_NAME = "20250815_131147.mp4"
 INFER = 1
 RTSP = os.getenv("RTSP", "").strip() or "0"
 BACKEND = cv2.CAP_FFMPEG

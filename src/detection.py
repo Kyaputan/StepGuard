@@ -1,24 +1,14 @@
 import os
 from ultralytics import YOLO
 from config import WEIGHTS_DIR, MODEL_NAME, MODEL_CONF
-import torch
 
 def load_model():
-    try:
-        model_path = os.path.join(WEIGHTS_DIR, MODEL_NAME)
-        model = YOLO(model_path , task="detect") 
-        return model
-    except Exception as e:
-        print(f"[Detection] Failed to load model: {e}")
-        raise
+    model_path = os.path.join(WEIGHTS_DIR, MODEL_NAME)
+    model = YOLO(model_path , task="detect")
+    return model
 
 def infer(model, frame):
-    try:
-        with torch.inference_mode():
-            return model.predict(frame, conf=MODEL_CONF, verbose=False)[0]
-    except Exception as e:
-        print(f"[Detection] Inference error: {e}")
-        raise
+    return model(frame, conf=MODEL_CONF)[0]
 
 def parse_results(results, margin: int = 10):
     parsed = []
