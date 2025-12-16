@@ -1,8 +1,16 @@
 import cv2
-from config import  ALERT_CLASSES, SNAPSHOT_DIR, PHONE_HOLD_SECONDS , CROP_FRAME
+from config import  ALERT_CLASSES, SNAPSHOT_DIR, PHONE_HOLD_SECONDS , CROP_FRAME, GPIO_PIN
 import os
 import time
 from typing import List, Dict, Tuple
+
+# Try to import GPIO for LED control
+try:
+    import RPi.GPIO as GPIO
+    GPIO_AVAILABLE = True
+except ImportError:
+    GPIO_AVAILABLE = False
+    print("[WARN] RPi.GPIO not available - LED control disabled")
 
 def draw_person_status(frame, results):
     alerts = 0
@@ -79,13 +87,22 @@ class PhoneHoldTracker:
         self.hold_seconds = hold_seconds
         self.iou_thresh = iou_thresh
         self.lost_tolerance = lost_tolerance
-        self.tracks = [] 
+        self.tracks = []
         self.last_alert_phone_time = 0.0
         self.last_alert_normal_time = 0.0
         self.alert_cooldown_phone = alert_cooldown
         self.alert_cooldown_normal = alert_cooldown
         self._alert_set = {c.lower() for c in ALERT_CLASSES}
         os.makedirs(SNAPSHOT_DIR, exist_ok=True)
+
+        # Initialize GPIO for LED
+        if GPIO_AVAILABLE:
+            GPIO.setmode(GPIO.BCM)
+            GPIO.setup(GPIO_PIN, GPIO.OUT)
+            GPIO.output(GPIO_PIN, GPIO.LOW)  # Start with LED off
+            print(f"[INFO] LED initialized on GPIO pin {GPIO_PIN}")
+        else:
+            print("[WARN] LED control not available")
 
     def update(self, detections: List[Dict], frame, now: float):
         phone_dets = [d for d in detections if d["class"].lower() in self._alert_set]
@@ -151,3 +168,10 @@ class PhoneHoldTracker:
                     t["triggered"] = True
 
         self.tracks = [t for t in self.tracks if (now - t["last"]) <= self.lost_tolerance]
+
+    def cleanup(self):
+        """Cleanup GPIO resources"""
+        if GPIO_AVAILABLE:
+            GPIO.output(GPIO_PIN, GPIO.LOW)  # Turn off LED
+            GPIO.cleanup()
+            print("[INFO] GPIO cleanup completed")

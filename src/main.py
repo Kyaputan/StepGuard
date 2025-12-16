@@ -4,7 +4,7 @@ import time
 from detection import load_model, infer , parse_results , debug_detection
 from logic import draw_person_status, PhoneHoldTracker
 from camera import VideoSource
-from config import SNAPSHOT_DIR , VIDEO_PATH , VIDEO_NAME , INFER , TZ , MARGIN , RTSP , BACKEND, debug_config
+from config import SNAPSHOT_DIR , VIDEO_PATH , VIDEO_NAME , INFER , TZ , MARGIN , RTSP , BACKEND, debug_config, GPIO_PIN
 from util import is_active_hour , start_scheduler , next_midnight_bkk
 from datetime import datetime
 from router import send_text
@@ -12,6 +12,15 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 from router import notify_violation
+from sound_manager import Alert
+
+try:
+    import RPi.GPIO as GPIO
+    import threading
+    GPIO_AVAILABLE = True
+except ImportError:
+    GPIO_AVAILABLE = False
+    print("[WARN] RPi.GPIO not available - LED control disabled")
 
 def main():
     try:
@@ -50,6 +59,7 @@ def main():
             if not active:
                 if prev_active is None or prev_active is True:
                     logger.info(f"[INFO {now.time()}] OFF-HOURS: pause YOLO now")
+                    send_text("หมดเวลาทำการ")
                     send_text(
                     f"วันนี้ตรวจจับได้ทั้งหมด {total_alerts + total_normals} ครั้ง\n"
                     f"- มีคนใช้โทรศัพท์ {total_alerts} ครั้ง ({(total_alerts / (total_alerts + total_normals)) * 100 if (total_alerts + total_normals) > 0 else 0:.1f}%)\n"
@@ -67,6 +77,7 @@ def main():
             
             if prev_active is None or prev_active is False:
                 logger.info(f"[INFO {now.time()}] ON-HOURS: resume YOLO")
+                send_text("เริ่มเวลาทำการ ระบบจะเริ่มทำการตรวจจับ")
             if cam.should_infer():
                 yolo_results = infer(model, frame)
                 person_results = parse_results(yolo_results , margin=MARGIN)
@@ -80,8 +91,17 @@ def main():
                     logger.info("Phone detected")
                     tracker.last_alert_phone_time = time.time()
                     total_alerts += status["alerts"]
+                    Alert()
                     if path:
                         notify_violation(path)
+                        # !---------------------------------------------------------
+                    if GPIO_AVAILABLE:
+                        GPIO.output(GPIO_PIN, GPIO.HIGH)
+                        def turn_off_led():
+                            time.sleep(5)
+                            GPIO.output(GPIO_PIN, GPIO.LOW)
+                        threading.Thread(target=turn_off_led, daemon=True).start()
+                        # !---------------------------------------------------------
                 if status["has_normal"] and time.time() - tracker.last_alert_normal_time > tracker.alert_cooldown_normal:
                     logger.info("Normal detected")
                     tracker.last_alert_normal_time = time.time()
@@ -100,11 +120,14 @@ def main():
         logger.info(f"total_normals: {total_normals}")
         logger.info(f"total_alerts: {total_alerts}")
         send_text(
-                    f"วันนี้ตรวจจับได้ทั้งหมด {total_alerts + total_normals} ครั้ง\n"
+                    f"ระบบถูกขัดจังหวะการทำงาน \n"
+                    f"ก่อนหยุดการทำงานทำการตรวจจับได้ทั้งหมด {total_alerts + total_normals} ครั้ง\n"
                     f"- มีคนใช้โทรศัพท์ {total_alerts} ครั้ง ({(total_alerts / (total_alerts + total_normals)) * 100 if (total_alerts + total_normals) > 0 else 0:.1f}%)\n"
                     f"- มีคนไม่ใช้โทรศัพท์ {total_normals} ครั้ง ({(total_normals / (total_alerts + total_normals)) * 100 if (total_alerts + total_normals) > 0 else 0:.1f}%)")
         cam.release()
         cv2.destroyAllWindows()
+        # Cleanup GPIO
+        tracker.cleanup()
 
 if __name__ == "__main__":
     os.system('cls' if os.name == 'nt' else 'clear')

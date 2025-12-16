@@ -12,5 +12,6 @@ dependencies = [
     "onnxslim>=0.1.69",
     "opencv-python>=4.12.0.88",
     "openvino>=2025.3.0",
+    "pygame>=2.6.1",
     "ultralytics>=8.3.203",
 ]

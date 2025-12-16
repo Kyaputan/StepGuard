@@ -28,8 +28,9 @@ CROP_FRAME = [0.7,0.5]
 LOST_TOLERANCE = 5.0  # เพิ่มเพื่อ clear tracks ที่ inactive เร็วขึ้น
 #==== router.py ====
 COOLDOWN_SEC = 10
+GPIO_PIN = 17
 
-#==== util.py ==== 
+#==== util.py ====
 ACTIVE_START_H = 6
 ACTIVE_START_M = 30
 
