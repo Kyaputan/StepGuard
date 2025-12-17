@@ -29,85 +29,133 @@ except ImportError:
 class Dashboard:
     def __init__(self, delay_seconds=3):
         self.root = tk.Tk()
-        self.root.title("StepGuard Detection Dashboard")
+        self.root.title("StepGuard Executive Dashboard")
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
         
-        # กำหนดสีธีม - โทนสีขาวนวลมินิมอล
-        self.bg_color = '#F8F9FA'  # สีขาวนวล
+        # กำหนดสีธีมแบบ Executive - Modern Minimal
+        self.bg_color = '#1A1F36'  # สีพื้นหลังเข้ม
         self.panel_bg = '#FFFFFF'  # สีขาวบริสุทธิ์
-        self.text_color = '#2C3E50'  # สีเทาเข้มอ่อน
-        self.accent_color = '#3498DB'  # สีน้ำเงินอ่อนสำหรับ accent
-        self.border_color = '#E0E0E0'  # สีเทาอ่อนสำหรับเส้นขอบ
+        self.header_bg = '#1A1F36'  # สีเทาเข้มสำหรับ header
+        self.text_color = '#FFFFFF'  # สีขาว
+        self.text_light = '#8F95B2'  # สีเทาอ่อน
+        self.accent_success = '#10B981'  # สีเขียวสำหรับ success
+        self.accent_danger = '#EF4444'  # สีแดงสำหรับ danger
+        self.border_color = '#2C3E50'  # สีเทาอ่อนสำหรับเส้นขอบ
         
-        # ตั้งพื้นหลังหน้าต่างหลัก
+        # ตั้งค่าหน้าต่าง - Fullscreen
         self.root.configure(bg=self.bg_color)
+        self.root.attributes('-fullscreen', True)
         
-        # เก็บ frame ที่ผ่านมาตามจำนวนวินาที (ประมาณ 1 frame ต่อ loop)
+        # เก็บ frame buffer
         self.delay_frames = delay_seconds
         self.frame_buffer = deque(maxlen=self.delay_frames)
         
-        # สร้าง Frame หลักแบ่ง 2 ส่วน
-        main_frame = tk.Frame(self.root, bg=self.bg_color)
-        main_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
-        
-        # ส่วนซ้าย: ภาพ delay 3 วินาที (ขนาดเล็กกว่า)
-        left_frame = tk.Frame(main_frame, bg=self.panel_bg, relief=tk.FLAT, bd=1)
-        left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(8, 4))
-        
-        # จำกัดขนาดของ left_frame
-        left_frame.configure(width=400)
-        left_frame.pack_propagate(False)
-        
-        # Header สำหรับส่วนซ้าย
-        left_header = tk.Frame(left_frame, bg=self.panel_bg)
-        left_header.pack(fill=tk.X, padx=15, pady=(15, 10))
-        
-        left_label = tk.Label(left_header, text="🎥 Live Detection",
-                             fg=self.text_color, bg=self.panel_bg,
-                             font=('Segoe UI', 16, 'bold'))
-        left_label.pack(anchor='w')
-        
-        # Divider line
-        left_divider = tk.Frame(left_frame, bg=self.border_color, height=1)
-        left_divider.pack(fill=tk.X, padx=15, pady=(0, 10))
-        
-        # Panel สำหรับแสดงภาพ
-        panel_container_left = tk.Frame(left_frame, bg=self.panel_bg)
-        panel_container_left.pack(fill=tk.BOTH, expand=True, padx=15, pady=(0, 15))
-        
-        self.left_panel = tk.Label(panel_container_left, bg='#FAFAFA',
-                                   relief=tk.FLAT, bd=0)
-        self.left_panel.pack(fill=tk.BOTH, expand=True)
-        
-        # ส่วนขวา: ภาพ crop คนใช้โทรศัพท์ (ขนาดใหญ่กว่า - เด่นกว่า)
-        right_frame = tk.Frame(main_frame, bg=self.panel_bg, relief=tk.FLAT, bd=1)
-        right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(4, 8))
-        
-        # ขนาดของ right_frame จะใหญ่กว่าเพราะใช้ expand=True แบบเต็ม
-        
-        # Header สำหรับส่วนขวา
-        right_header = tk.Frame(right_frame, bg=self.panel_bg)
-        right_header.pack(fill=tk.X, padx=15, pady=(15, 10))
-        
-        right_label = tk.Label(right_header, text="📱 Phone User Detection",
-                              fg='#E74C3C', bg=self.panel_bg,
-                              font=('Segoe UI', 18, 'bold'))
-        right_label.pack(anchor='w')
-        
-        # Divider line
-        right_divider = tk.Frame(right_frame, bg=self.border_color, height=1)
-        right_divider.pack(fill=tk.X, padx=15, pady=(0, 10))
-        
-        # Panel สำหรับแสดงภาพ
-        panel_container_right = tk.Frame(right_frame, bg=self.panel_bg)
-        panel_container_right.pack(fill=tk.BOTH, expand=True, padx=15, pady=(0, 15))
-        
-        self.right_panel = tk.Label(panel_container_right, bg='#FAFAFA',
-                                    relief=tk.FLAT, bd=0)
-        self.right_panel.pack(fill=tk.BOTH, expand=True)
+        # สร้าง UI Components
+        self._create_header()
+        self._create_main_content()
         
         self.is_running = True
         self.cropped_image = None
+    
+    def _create_header(self):
+        """สร้าง Header Bar แบบบาง"""
+        header = tk.Frame(self.root, bg=self.header_bg, height=70)
+        header.pack(fill=tk.X, side=tk.TOP)
+        header.pack_propagate(False)
+        
+        # ชื่อระบบ
+        title_frame = tk.Frame(header, bg=self.header_bg)
+        title_frame.pack(side=tk.LEFT, padx=30, pady=18)
+        
+        title = tk.Label(title_frame, text="🛡️ StepGuard Executive Dashboard",
+                        fg='#FFFFFF', bg=self.header_bg,
+                        font=('Segoe UI', 26, 'bold'))
+        title.pack(anchor='w')
+        
+        # เวลาและสถานะ
+        status_frame = tk.Frame(header, bg=self.header_bg)
+        status_frame.pack(side=tk.RIGHT, padx=30, pady=18)
+        
+        self.time_label = tk.Label(status_frame, text="",
+                                   fg='#FFFFFF', bg=self.header_bg,
+                                   font=('Segoe UI', 18))
+        self.time_label.pack(anchor='e')
+        
+        self.status_label = tk.Label(status_frame, text="● System Active",
+                                     fg=self.accent_success, bg=self.header_bg,
+                                     font=('Segoe UI', 16, 'bold'))
+        self.status_label.pack(anchor='e')
+    
+    def _create_main_content(self):
+        """สร้างส่วนแสดงภาพหลัก - Fullscreen"""
+        main_frame = tk.Frame(self.root, bg=self.bg_color)
+        main_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=15)
+        
+        # ส่วนซ้าย: Live Detection
+        left_frame = tk.Frame(main_frame, bg=self.bg_color, relief=tk.FLAT,
+                             highlightbackground=self.border_color, highlightthickness=1)
+        left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 8))
+        
+        # Header
+        left_header = tk.Frame(left_frame, bg=self.bg_color)
+        left_header.pack(fill=tk.X, padx=20, pady=(15, 8))
+        
+        left_title = tk.Label(left_header, text="🎥 Live Detection",
+                             fg=self.text_color, bg=self.bg_color,
+                             font=('Segoe UI', 20, 'bold'))
+        left_title.pack(anchor='w')
+        
+        # Video Panel
+        panel_container_left = tk.Frame(left_frame, bg='#0D1117')
+        panel_container_left.pack(fill=tk.BOTH, expand=True, padx=15, pady=(0, 15))
+        
+        self.left_panel = tk.Label(panel_container_left, bg='#0D1117', relief=tk.FLAT, bd=0)
+        self.left_panel.pack(fill=tk.BOTH, expand=True)
+        
+        # ส่วนขวา: Phone User Detection
+        right_frame = tk.Frame(main_frame, bg=self.bg_color, relief=tk.FLAT,
+                              highlightbackground=self.accent_danger, highlightthickness=3)
+        right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(8, 0))
+        
+        # Header with warning badge
+        right_header = tk.Frame(right_frame, bg=self.bg_color)
+        right_header.pack(fill=tk.X, padx=20, pady=(15, 8))
+        
+        header_row = tk.Frame(right_header, bg=self.bg_color)
+        header_row.pack(fill=tk.X)
+        
+        right_title = tk.Label(header_row, text="📱 Phone User Alert",
+                              fg=self.accent_danger, bg=self.bg_color,
+                              font=('Segoe UI', 20, 'bold'))
+        right_title.pack(side=tk.LEFT)
+        
+        badge = tk.Label(header_row, text="VIOLATION",
+                        fg='#FFFFFF', bg=self.accent_danger,
+                        font=('Segoe UI', 12, 'bold'),
+                        padx=12, pady=4)
+        badge.pack(side=tk.LEFT, padx=15)
+        
+        # Video Panel
+        panel_container_right = tk.Frame(right_frame, bg='#0D1117')
+        panel_container_right.pack(fill=tk.BOTH, expand=True, padx=15, pady=(0, 15))
+        
+        self.right_panel = tk.Label(panel_container_right, bg='#0D1117', relief=tk.FLAT, bd=0)
+        self.right_panel.pack(fill=tk.BOTH, expand=True)
+        
+        # เพิ่ม ESC key สำหรับออกจาก fullscreen
+        self.root.bind('<Escape>', lambda e: self.on_closing())
+    
+    def update_system_status(self, status="Active"):
+        """อัปเดตสถานะระบบ"""
+        self.system_status = status
+        if status == "Active":
+            self.status_label.config(text="● System Active", fg=self.accent_success)
+        else:
+            self.status_label.config(text="● System Inactive", fg=self.text_light)
+    
+    def update_time(self, time_str):
+        """อัปเดตเวลาปัจจุบัน"""
+        self.time_label.config(text=time_str)
         
     def update_frames(self, current_frame, cropped_frame=None):
         """อัปเดตภาพทั้งสองส่วน"""
@@ -274,6 +322,12 @@ def main():
                     last_results = []
                     total_alerts = 0
                     total_normals = 0
+                
+                # อัปเดต Dashboard แสดงสถานะ OFF-HOURS
+                dashboard.update_time(now.strftime("%d %b %Y • %H:%M:%S"))
+                dashboard.update_system_status("Inactive")
+                dashboard.update()
+                
                 # cv2.imshow("Detection", frame)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
@@ -325,6 +379,8 @@ def main():
 
             # อัปเดต Dashboard แทน cv2.imshow
             dashboard.update_frames(frame, cropped_phone_user)
+            dashboard.update_time(now.strftime("%d %b %Y • %H:%M:%S"))
+            dashboard.update_system_status("Active")
             dashboard.update()
             
             if not dashboard.is_running:
