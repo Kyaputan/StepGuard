@@ -4,7 +4,7 @@ import time
 from config import WEIGHTS_DIR, MODEL_NAME
 
 pygame.mixer.init()
-sound_path = os.path.join(WEIGHTS_DIR, "Hello.wav")
+sound_path = os.path.join(WEIGHTS_DIR, "stop.wav")
 try:
     alert_sound = pygame.mixer.Sound(sound_path) 
     print("✅ Audio System Ready: Sound loaded.")
