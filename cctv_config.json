@@ -1,0 +1,36 @@
+{
+    "user": "Rachata",
+    "password": "password123",
+    "ip": "192.168.1.100",
+    "ports_to_test": [
+        554,
+        556,
+        8554,
+        80,
+        8080
+    ],
+    "rtsp_suffixes": [
+        "/stream1",
+        "/stream2",
+        "/live/stream1",
+        "/live/stream2",
+        "/h264/ch1/main/av_stream",
+        "/h264/ch1/sub/av_stream",
+        "/live1.sdp",
+        "/live2.sdp",
+        "/1",
+        "/2",
+        "/channel1",
+        "/media/video1",
+        "/Streaming/Channels/101",
+        "/Streaming/Channels/102",
+        "/Streaming/Channels/1",
+        "/Streaming/Channels/2",
+        "/cam/realmonitor?channel=1&subtype=0",
+        "/cam/realmonitor?channel=1&subtype=1",
+        "/onvif1",
+        "/onvif2",
+        "/video",
+        "/"
+    ]
+}

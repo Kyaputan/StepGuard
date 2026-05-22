@@ -25,8 +25,8 @@ class StaircaseDetector:
             self.model = YOLO(YOLO_MODEL_PATH)
             print(f"[INFO] YOLO Model loaded successfully: {YOLO_MODEL_PATH}")
         except Exception as e:
-            print(f"[ERROR] Failed to load YOLO Model: {e}. Downloading default yolov8n.pt...")
-            self.model = YOLO("yolov8n.pt")
+            print(f"[ERROR] Failed to load YOLO Model: {e}. Downloading default yolo26s.pt...")
+            self.model = YOLO("yolo26s.pt")
             
         self.analyzer = ImageAnalyzer()
         
@@ -44,7 +44,7 @@ class StaircaseDetector:
         top_bound = int(h * MIDDLE_ZONE_TOP)
         bottom_bound = int(h * MIDDLE_ZONE_BOTTOM)
         
-        results = self.model.track(frame, persist=True, verbose=False, conf=0.4)
+        results = self.model.track(frame, persist=True, verbose=False, conf=0.25)
         
         annotated_frame = frame.copy()
         

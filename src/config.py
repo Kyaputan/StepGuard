@@ -17,9 +17,8 @@ BASE_DIR = SRC_DIR.parent
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN") or os.getenv("TELEGRAM_TOKEN") or ""
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID") or os.getenv("CHAT_ID") or ""
 API_KEY = os.getenv("API_KEY") or ""
-
 # YOLO Settings
-YOLO_MODEL_PATH = os.getenv("YOLO_MODEL_PATH", "yolov8n.pt")
+YOLO_MODEL_PATH = os.getenv("YOLO_MODEL_PATH", "yolo26s.pt")
 
 # Database Path
 DB_PATH = os.getenv("DB_PATH", str(BASE_DIR / "stepguard.db"))
