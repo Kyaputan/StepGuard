@@ -29,7 +29,7 @@ SNAPSHOT_DIR = Path(os.getenv("SNAPSHOT_DIR", str(BASE_DIR / "snapshots")))
 SNAPSHOT_DIR.mkdir(parents=True, exist_ok=True)
 
 # Sound Warning Settings
-SOUND_ALERT_PATH = os.getenv("SOUND_ALERT_PATH", str(BASE_DIR / "model" / "stop.wav"))
+SOUND_ALERT_PATH = os.getenv("SOUND_ALERT_PATH", str(BASE_DIR / "sound" / "stop.wav"))
 
 # Camera Settings
 _camera_source_raw = os.getenv("CAMERA_SOURCE") or os.getenv("RTSP") or "0"

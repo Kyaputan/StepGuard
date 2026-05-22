@@ -28,7 +28,7 @@ class ImageAnalyzer:
         else:
             try:
                 self.model = ChatOpenAI(
-                    model="google/gemini-2.5-flash-lite",
+                    model="google/gemma-3-4b-it",
                     openai_api_base="https://openrouter.ai/api/v1",
                     api_key=self.api_key,
                     temperature=0.1

@@ -16,6 +16,7 @@ from agent.llm_analyzer import ImageAnalyzer
 from services.sound_player import play_alert_sound
 from services.telegram_bot import send_telegram_alert
 from utils.resizeimg import resizeimg
+from utils.blurface import blur_face
 
 class StaircaseDetector:
     def __init__(self):
@@ -43,7 +44,7 @@ class StaircaseDetector:
         top_bound = int(h * MIDDLE_ZONE_TOP)
         bottom_bound = int(h * MIDDLE_ZONE_BOTTOM)
         
-        results = self.model.track(frame, persist=True, verbose=False, conf=0.5)
+        results = self.model.track(frame, persist=True, verbose=False, conf=0.4)
         
         annotated_frame = frame.copy()
         
@@ -145,6 +146,19 @@ class StaircaseDetector:
         result = self.analyzer.analyze_cropped_image(image_path)
         
         print(f"[ANALYSIS] Results for ID {track_id}: Phone={result.is_using_phone}, Gender={result.gender}, Dir={result.direction}, Conf={result.confidence:.2f}")
+        
+        # Apply face blurring to the saved image to preserve privacy after LLM analysis
+        try:
+            img = cv2.imread(image_path)
+            if img is not None:
+                blurred_img = blur_face(img)
+                cv2.imwrite(image_path, blurred_img)
+                print(f"[PRIVACY] Face blurred successfully in: {image_path}")
+            else:
+                print(f"[WARNING] Could not read image for face blurring at: {image_path}")
+        except Exception as e:
+            print(f"[ERROR] Failed to apply face blurring: {e}")
+
         
         if result.is_using_phone:
             play_alert_sound()
