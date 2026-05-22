@@ -1,65 +1,68 @@
-from zoneinfo import ZoneInfo
-import cv2
-import logging
-import dotenv
 import os
-dotenv.load_dotenv()
+from pathlib import Path
+from dotenv import load_dotenv
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
-#==== detection.py ==== 
-WEIGHTS_DIR = "./model"
-MODEL_NAME = "guard.onnx"
-MODEL_CONF = 0.1
+# Load environment variables from .env file
+env_path = Path(__file__).resolve().parent / ".env"
+if env_path.exists():
+    load_dotenv(dotenv_path=env_path, override=True)
+else:
+    load_dotenv(override=True)  # Fallback to current working directory .env
 
-#==== main.py ==== 
-VIDEO_PATH = "./video/"
-VIDEO_NAME = "20250815_131147.mp4"
-INFER = 1
-RTSP = os.getenv("RTSP", "").strip() or "0"
-BACKEND = cv2.CAP_FFMPEG
-MARGIN = 10
+# Base Directories
+SRC_DIR = Path(__file__).resolve().parent
+BASE_DIR = SRC_DIR.parent
 
-#==== logic.py ==== 
-SNAPSHOT_DIR = "./snapshots"  
-PHONE_HOLD_SECONDS = 4
-ALERT_CLASSES = {"Phone"}
-CROP_FRAME = [0.7,0.5]
-LOST_TOLERANCE = 5.0  # เพิ่มเพื่อ clear tracks ที่ inactive เร็วขึ้น
-#==== router.py ====
-COOLDOWN_SEC = 10
-GPIO_PIN = 17
+# Credentials & API Keys
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN") or os.getenv("TELEGRAM_TOKEN") or ""
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID") or os.getenv("CHAT_ID") or ""
+API_KEY = os.getenv("API_KEY") or ""
 
-#==== util.py ====
-ACTIVE_START_H = 6
-ACTIVE_START_M = 30
+# YOLO Settings
+YOLO_MODEL_PATH = os.getenv("YOLO_MODEL_PATH", "yolov8n.pt")
 
-ACTIVE_END_H = 17
-ACTIVE_END_M = 10
+# Database Path
+DB_PATH = os.getenv("DB_PATH", str(BASE_DIR / "stepguard.db"))
 
-TZ = ZoneInfo("Asia/Bangkok")
+# Directories for output and resources
+SNAPSHOT_DIR = Path(os.getenv("SNAPSHOT_DIR", str(BASE_DIR / "snapshots")))
+SNAPSHOT_DIR.mkdir(parents=True, exist_ok=True)
 
-def debug_config() -> None:
-    logger.info(f"SNAPSHOT_DIR: {SNAPSHOT_DIR}")
-    logger.info(f"VIDEO_NAME: {VIDEO_PATH + VIDEO_NAME}")
-    logger.info(f"INFER: {INFER}")
-    value = "" if RTSP is None else str(RTSP).strip()
-    if value == "0":
-        logger.info("RTSP: Webcam")
-    elif value.lower().startswith("rtsp"):
-        logger.info(f"RTSP: {value}")
+# Sound Warning Settings
+SOUND_ALERT_PATH = os.getenv("SOUND_ALERT_PATH", str(BASE_DIR / "model" / "stop.wav"))
+
+# Camera Settings
+_camera_source_raw = os.getenv("CAMERA_SOURCE") or os.getenv("RTSP") or "0"
+if _camera_source_raw.isdigit():
+    CAMERA_SOURCE = int(_camera_source_raw)
+else:
+    # Normalize slashes and resolve relative to BASE_DIR if it's a relative path
+    normalized = _camera_source_raw.replace("\\", "/")
+    resolved_path = BASE_DIR / normalized
+    if resolved_path.exists():
+        CAMERA_SOURCE = str(resolved_path)
     else:
-        logger.error("#" * 50)
-        logger.error(f"[ERROR] Invalid RTSP value: {RTSP} (expected 0 or rtsp://...)")
-        logger.error("#" * 50)
-    logger.info(f"MARGIN: {MARGIN}")
-    logger.info(f"PHONE_HOLD_SECONDS: {PHONE_HOLD_SECONDS}")
-    logger.info(f"ALERT_CLASSES: {ALERT_CLASSES}")
-    logger.info(f"CROP_FRAME: {CROP_FRAME}")
-    logger.info(f"COOLDOWN_SEC: {COOLDOWN_SEC}")
-    logger.info(f"ACTIVE_START: {ACTIVE_START_H}:{ACTIVE_START_M}")
-    logger.info(f"ACTIVE_END: {ACTIVE_END_H}:{ACTIVE_END_M}")
-    logger.info(f"Timezone: {TZ}")
+        CAMERA_SOURCE = normalized
+
+# Middle Detection Zone (fraction of screen height)
+MIDDLE_ZONE_TOP = float(os.getenv("MIDDLE_ZONE_TOP", "0.45"))
+MIDDLE_ZONE_BOTTOM = float(os.getenv("MIDDLE_ZONE_BOTTOM", "0.55"))
+
+def print_config():
+    """Helper to display active config in a clean manner"""
+    print("=" * 40)
+    print("       StepGuard Configuration")
+    print("=" * 40)
+    print(f"Telegram Bot Active: {bool(TELEGRAM_BOT_TOKEN)}")
+    print(f"Telegram Chat ID:    {TELEGRAM_CHAT_ID}")
+    print(f"API Key Set:         {bool(API_KEY)}")
+    print(f"YOLO Model Path:     {YOLO_MODEL_PATH}")
+    print(f"Database Path:       {DB_PATH}")
+    print(f"Snapshot Directory:  {SNAPSHOT_DIR}")
+    print(f"Sound Alert Path:    {SOUND_ALERT_PATH}")
+    print(f"Camera Source:       {CAMERA_SOURCE}")
+    print(f"Middle Zone Range:   {MIDDLE_ZONE_TOP} to {MIDDLE_ZONE_BOTTOM}")
+    print("=" * 40)
 
 if __name__ == "__main__":
-    debug_config()
+    print_config()

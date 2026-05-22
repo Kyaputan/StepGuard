@@ -3,22 +3,14 @@ import time
 import random
 
 def save_video_from_rtsp(rtsp_url, output_path, duration=10):
-    """
-    บันทึกวิดิโอจาก RTSP stream โดยใช้ OpenCV และบันทึกในโฟลเดอร์ที่กำหนด
 
-    Args:
-        rtsp_url (str): URL ของ RTSP stream
-        output_path (str): เส้นทางไฟล์สำหรับบันทึกวิดิโอ
-        duration (int): ระยะเวลาในการบันทึก (วินาที), ค่าเริ่มต้น 10 วินาที
-    """
-    # เปิด RTSP stream
     cap = cv2.VideoCapture(rtsp_url)
 
     if not cap.isOpened():
         print("ไม่สามารถเปิด RTSP stream ได้")
         return False
 
-    # รับคุณสมบัติของเฟรม
+
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps = cap.get(cv2.CAP_PROP_FPS)
