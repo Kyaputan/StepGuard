@@ -16,7 +16,7 @@ BASE_DIR = SRC_DIR.parent
 # Credentials & API Keys
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN") or os.getenv("TELEGRAM_TOKEN") or ""
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID") or os.getenv("CHAT_ID") or ""
-API_KEY = os.getenv("API_KEY") or ""
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY") or ""
 # YOLO Settings
 YOLO_MODEL_PATH = os.getenv("YOLO_MODEL_PATH", "yolo26s.pt")
 
@@ -54,7 +54,7 @@ def print_config():
     print("=" * 40)
     print(f"Telegram Bot Active: {bool(TELEGRAM_BOT_TOKEN)}")
     print(f"Telegram Chat ID:    {TELEGRAM_CHAT_ID}")
-    print(f"API Key Set:         {bool(API_KEY)}")
+    print(f"OpenRouter API Key Set:         {bool(OPENROUTER_API_KEY)}")
     print(f"YOLO Model Path:     {YOLO_MODEL_PATH}")
     print(f"Database Path:       {DB_PATH}")
     print(f"Snapshot Directory:  {SNAPSHOT_DIR}")

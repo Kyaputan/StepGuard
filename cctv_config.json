@@ -1,6 +1,6 @@
 {
-    "user": "Rachata",
-    "password": "password123",
+    "user": "***",
+    "password": "***",
     "ip": "192.168.1.100",
     "ports_to_test": [
         554,

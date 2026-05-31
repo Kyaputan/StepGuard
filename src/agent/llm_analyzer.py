@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
-from config import API_KEY
+from config import OPENROUTER_API_KEY
 
 class ViolatorAnalysis(BaseModel):
     is_using_phone: bool = Field(description="True if the person in the image is holding, looking at, or actively using a mobile phone. False otherwise.")
@@ -20,15 +20,15 @@ def encode_image(image_path: str) -> str:
 
 class ImageAnalyzer:
     def __init__(self):
-        self.api_key = API_KEY
+        self.api_key = OPENROUTER_API_KEY
         
         if not self.api_key:
-            print("[WARNING] API_KEY not found in configurations. Running in DEMO/MOCK mode.")
+            print("[WARNING] OPENROUTER_API_KEY not found in configurations. Running in DEMO/MOCK mode.")
             self.model = None
         else:
             try:
                 self.model = ChatOpenAI(
-                    model="google/gemma-3-4b-it",
+                    model="google/gemma-3-12b-it",
                     openai_api_base="https://openrouter.ai/api/v1",
                     api_key=self.api_key,
                     temperature=0.1
